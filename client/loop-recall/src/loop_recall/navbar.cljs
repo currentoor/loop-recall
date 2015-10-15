@@ -17,7 +17,7 @@
                          ]]
     [:div
      (mui/app-bar
-      {:title                    "AdequateStage"
+      {:title                    "LoopRecall"
        :onLeftIconButtonTouchTap (fn []
                                    (.toggle (.. this -refs -leftNav)))})
      (mui/left-nav
