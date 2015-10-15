@@ -1,23 +1,29 @@
 (ns ^:figwheel-always loop-recall.core
-    (:require[om.core :as om :include-macros true]
-              [om.dom :as dom :include-macros true]))
+    (:require-macros [loop-recall.macros :refer [inspect]]
+                     [cljs.core.async.macros :as asyncm :refer (go go-loop)]
+                     [loop-recall.material :as mui])
+    (:require [loop-recall.navbar :refer [navbar]]
+              [loop-recall.routes :refer [hook-browser-navigation!]]
+              [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
+              [loop-recall.theme :refer [color-theme]]
+              [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (enable-console-print!)
 
-(println "Edits to this text should show up in your developer console.")
+(defc app < rum/reactive color-theme [conn]
+  (let [db   (rum/react conn)
+        page (system-attr db :page)]
+    [:div
+     (navbar)
+     ;; (condp = page
+     ;;   (global-dash db)
+     ;;   )
+     ]))
 
-;; define your app data so that it doesn't get over-written on reload
+(rum/mount (app conn) (js/document.getElementById "app"))
 
-(defonce app-state (atom {:text "Hello world!"}))
-
-(om/root
-  (fn [data owner]
-    (reify om/IRender
-      (render [_]
-        (dom/h1 nil (:text data)))))
-  app-state
-  {:target (. js/document (getElementById "app"))})
-
+(defonce history
+  (hook-browser-navigation!))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
