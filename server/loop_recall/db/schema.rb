@@ -11,11 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151015044132) do
+ActiveRecord::Schema.define(version: 20151015054407) do
 
   create_table "cards", force: :cascade do |t|
     t.text     "question"
     t.text     "answer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "user_cards", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "card_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "user_cards", ["card_id"], name: "index_user_cards_on_card_id"
+  add_index "user_cards", ["user_id"], name: "index_user_cards_on_user_id"
+
+  create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
