@@ -7,6 +7,7 @@
               [loop-recall.routes :refer [hook-browser-navigation!]]
               [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
               [loop-recall.theme :refer [color-theme]]
+              [loop-recall.utility :refer [poor-mans-relay]]
               [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (enable-console-print!)
@@ -14,27 +15,6 @@
 (defn toggle-answer []
   (let [previous (system-attr @conn :show-answer?)]
     (set-system-attrs! :show-answer? (not previous))))
-
-(def garib-relay-mixin
-  {:did-mount (fn [{[query] :rum/args :as state}]
-                (GET "http://localhost:3000/graph_ql/query"
-                    {:params          {:query (js/encodeURIComponent query)}
-                     :response-format :transit
-                     :handler         (fn [resp]
-                                        (swap! (:rum/local state)
-                                               assoc :is-loading? false
-                                               :data (resp "data")))})
-                state)})
-
-(defcs garib-relay < (rum/local {:is-loading? true
-                                 :data        nil})
-                     garib-relay-mixin
-  [state query params children]
-  (let [{:keys [is-loading? data]} @(:rum/local state)]
-    (if is-loading?
-      [:div.center
-       (mui/circular-progress {:mode "indeterminate"})]
-      (children data))))
 
 (defn mod-shift [inc-dec i n]
   (set-system-attrs! :show-answer? false)
@@ -77,11 +57,12 @@
          :onClick         next}
         "arrow_forward")]]
 
-     (mui/card-text answer))]])
+     (if (system-attr db :show-answer?)
+       (mui/card-text answer)))]])
 
 (defcs study-deck [state db]
-  (garib-relay
-   "query getCards { user(id: 1) { cards{id, question, answer} } }" ""
+  (poor-mans-relay
+   "query getCards { user(id: 1) { cards{id, question, answer} } }"
    (fn [data]
      (let [cards                     (get-in data ["user" "cards"])
            index                     (or (system-attr db :study/card-index) 0)
