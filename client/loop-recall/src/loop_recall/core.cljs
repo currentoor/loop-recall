@@ -2,7 +2,8 @@
     (:require-macros [loop-recall.macros :refer [inspect]]
                      [cljs.core.async.macros :as asyncm :refer (go go-loop)]
                      [loop-recall.material :as mui])
-    (:require [loop-recall.navbar :refer [navbar]]
+    (:require [ajax.core :refer [GET POST]]
+              [loop-recall.navbar :refer [navbar]]
               [loop-recall.routes :refer [hook-browser-navigation!]]
               [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
               [loop-recall.theme :refer [color-theme]]
@@ -13,6 +14,14 @@
 (defn toggle-answer []
   (let [previous (system-attr @conn :show-answer?)]
     (set-system-attrs! :show-answer? (not previous))))
+
+(let [q "query getCards { user(id: 1) { cards{id, question, answer} } }"]
+  (GET "http://localhost:3000/graph_ql/query"
+      {:params {:query (js/encodeURIComponent q)}
+       :response-format :transit
+       :handler (fn [resp]
+                  (inspect resp)
+                  )}))
 
 (defc study-card [db]
   [:div.row

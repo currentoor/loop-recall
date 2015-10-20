@@ -60,7 +60,7 @@ GEM
     execjs (2.6.0)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
-    graphql (0.9.5)
+    graphql (0.10.0)
       parslet (~> 1.6)
     hirb (0.7.3)
     http-cookie (1.0.2)
