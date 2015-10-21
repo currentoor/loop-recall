@@ -1,17 +1,16 @@
 # == Schema Information
 #
-# Table name: user_cards
+# Table name: decks
 #
 #  id         :integer          not null, primary key
-#  user_id    :integer
-#  card_id    :integer
+#  name       :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 
 require 'test_helper'
 
-class UserCardTest < ActiveSupport::TestCase
+class DeckTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

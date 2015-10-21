@@ -1,16 +1,14 @@
 # == Schema Information
 #
-# Table name: users
+# Table name: decks
 #
 #  id         :integer          not null, primary key
+#  name       :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 
-require 'test_helper'
-
-class UserTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+class Deck < ActiveRecord::Base
+  has_many :user_decks
+  has_many :users, through: :user_decks
 end
