@@ -16,15 +16,23 @@ MutationRoot = GraphQL::ObjectType.define do
   field :createCard, CardType do
     # Ex: "mutation bar { createCard(question: \"who?\", answer: \"me!\", user_id: \"1\") {question, answer} }"
     argument :user_id, !types.ID
+    argument :deck_id, !types.ID
     argument :question, !types.String
     argument :answer, !types.String
     resolve -> (object, args, context) {
       Card.transaction do
-        user = User.find(args['user_id'])
+        user_id, deck_id, question, answer = [
+          args['user_id'],
+          args['deck_id'],
+          args['question'],
+          args['answer']
+        ]
+        user = User.find(user_id)
 
         Card.create!(
-          question: args["question"],
-          answer: args["answer"]
+          deck_id: deck_id,
+          question: question,
+          answer: answer
         ).tap do |card|
           user.cards << card
         end
@@ -35,11 +43,13 @@ MutationRoot = GraphQL::ObjectType.define do
   field :updateCard, CardType do
     # Ex: "mutation bar { updateCard(question: \"?????\", answer: \"!!!!\", id: \"1\") {id} }"
     argument :id, !types.ID
+    argument :deck_id, !types.ID
     argument :question, types.String
     argument :answer, types.String
     resolve -> (object, args, context) {
-      id, question, answer = [
+      id, deck_id, question, answer = [
         args['id'],
+        args['deck_id'],
         args['question'],
         args['answer']
       ]
@@ -47,6 +57,7 @@ MutationRoot = GraphQL::ObjectType.define do
       Card.find(id).tap do |card|
         card.question = question if question
         card.answer = answer if answer
+        card.deck_id = deck_id if deck_id
         card.save!
       end
     }
@@ -58,6 +69,49 @@ MutationRoot = GraphQL::ObjectType.define do
     resolve -> (object, args, context) {
       id = args['id']
       Card.find(id).delete
+    }
+  end
+
+  field :createDeck, DeckType do
+    # Ex: "mutation bar { createDeck(name: \"clojure\" user_id: \"1\") {id, name} }"
+    argument :user_id, !types.ID
+    argument :name, !types.String
+    resolve -> (object, args, context) {
+      Deck.transaction do
+        user = User.find(args['user_id'])
+
+        Deck.create!(
+          name: args['name']
+        ).tap do |deck|
+          user.decks << deck
+        end
+      end
+    }
+  end
+
+  field :updateDeck, DeckType do
+    # Ex: "mutation bar { updateDeck(name: \"?????\" id: \"1\") {id, cards{question}} }"
+    argument :id, !types.ID
+    argument :name, !types.String
+    resolve -> (object, args, context) {
+      id, name = [
+        args['id'],
+        args['name']
+      ]
+
+      Deck.find(id).tap do |deck|
+        deck.name = name
+        deck.save!
+      end
+    }
+  end
+
+  field :deleteDeck, DeckType do
+    # Ex: "mutation bar { deleteDeck(id: \"1\") {id} }"
+    argument :id, !types.ID
+    resolve -> (object, args, context) {
+      id = args['id']
+      Deck.find(id).delete
     }
   end
 end

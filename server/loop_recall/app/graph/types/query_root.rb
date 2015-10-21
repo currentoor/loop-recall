@@ -10,9 +10,16 @@ QueryRoot = GraphQL::ObjectType.define do
   end
 
   field :cards do
-    type [CardType]
+    type types[CardType]
     resolve -> (object, arguments, context) {
       Card.all
+    }
+  end
+
+  field :decks do
+    type types[DeckType]
+    resolve -> (object, arguments, context) {
+      Deck.all
     }
   end
 

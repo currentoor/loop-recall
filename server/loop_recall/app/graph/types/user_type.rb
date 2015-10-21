@@ -4,5 +4,6 @@ UserType = GraphQL::ObjectType.define do
 
   field :id, !types.ID
   field :cards, -> { !types[!CardType] }
+  field :decks, -> { !types[!DeckType] }
 end
 
