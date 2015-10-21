@@ -7,20 +7,38 @@
               [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
               [loop-recall.study :as study]
               [loop-recall.theme :refer [color-theme]]
-              [loop-recall.utility :refer [poor-mans-relay]]
+              [loop-recall.utility :refer [query mutation]]
               [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (enable-console-print!)
 
+(defc new-card [db]
+  (mui/paper
+   {:zDepth 1}
+   [:div.row
+    [:div.col-xs-12.col-sm-6
+     (mui/text-field {:hintText          "Who?"
+                      :floatingLabelText "Question"})]
+    [:div.col-xs-12.col-sm-6
+     (mui/text-field {:hintText          "me?"
+                      :floatingLabelText "Answer"})]
+
+    [:div.col-xs-6
+     (mui/raised-button {:onClick   #(set-system-attrs! :new/card-question ""
+                                                        :new/card-answer "")
+                         :secondary true
+                         :label     "Create Card"})]
+    ]))
+
 (defc app < rum/reactive color-theme [conn]
   (let [db   (rum/react conn)
-        page (system-attr db :page)]
+        page (inspect (system-attr db :page))]
     [:div
      (navbar)
+     (new-card db)
      (study/page db)
+
      ;; (condp = page
-     ;;   :study (study/page db)
-     ;;   nil
      ;;   )
      ]))
 

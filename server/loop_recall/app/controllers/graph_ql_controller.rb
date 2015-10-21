@@ -9,6 +9,9 @@ class GraphQlController < ApplicationController
   end
 
   def mutation
-    binding.pry
+    mutation_string = params[:mutation]
+    mutation = GraphQL::Query.new(GraphSchema, mutation_string)
+
+    render transit: mutation.result
   end
 end

@@ -20,9 +20,12 @@
   {:is-loading? true
    :data        nil})
 
-(defcs poor-mans-relay < (rum/local init-state) mixin [state query child]
+(defcs query < (rum/local init-state) mixin [state graph-ql child]
   (let [{:keys [is-loading? data]} @(:rum/local state)]
     (if is-loading?
       [:div.center
        (mui/circular-progress {:mode "indeterminate"})]
       (child data))))
+
+(defcs mutation < (rum/local nil) [state graph-ql child]
+  )

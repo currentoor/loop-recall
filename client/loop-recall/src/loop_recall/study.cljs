@@ -2,7 +2,7 @@
   (:require-macros [loop-recall.macros :refer [inspect]]
                    [loop-recall.material :as mui])
   (:require [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
-            [loop-recall.utility :refer [poor-mans-relay]]
+            [loop-recall.utility :refer [query mutation]]
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (defn toggle-answer []
@@ -18,7 +18,7 @@
 
 (defc study-card [db question answer subtitle & {:keys [prev next]}]
   [:div.row
-   [:div.col-xs-12.col-sm-10.col-sm-offset-1
+   [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
     (mui/card
      (mui/card-title {:title "Card" :subtitle subtitle})
 
@@ -54,7 +54,7 @@
        (mui/card-text answer)))]])
 
 (defcs page [state db]
-  (poor-mans-relay
+  (query
    "query getCards { user(id: 1) { cards{id, question, answer} } }"
    (fn [data]
      (let [cards                     (get-in data ["user" "cards"])
