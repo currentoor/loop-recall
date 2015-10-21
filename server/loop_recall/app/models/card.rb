@@ -11,7 +11,7 @@
 #
 
 class Card < ActiveRecord::Base
-  has_one :deck
+  belongs_to :deck
   has_many :user_cards
   has_many :users, through: :user_cards
 end
