@@ -14,7 +14,6 @@ MutationRoot = GraphQL::ObjectType.define do
   # end
 
   field :createCard, CardType do
-    # Ex: "mutation bar { createCard(question: \"who?\", answer: \"me!\", user_id: \"1\") {question, answer} }"
     argument :user_id, !types.ID
     argument :deck_id, !types.ID
     argument :question, !types.String
@@ -41,9 +40,8 @@ MutationRoot = GraphQL::ObjectType.define do
   end
 
   field :updateCard, CardType do
-    # Ex: "mutation bar { updateCard(question: \"?????\", answer: \"!!!!\", id: \"1\") {id} }"
     argument :id, !types.ID
-    argument :deck_id, !types.ID
+    argument :deck_id, types.ID
     argument :question, types.String
     argument :answer, types.String
     resolve -> (object, args, context) {
@@ -64,7 +62,6 @@ MutationRoot = GraphQL::ObjectType.define do
   end
 
   field :deleteCard, CardType do
-    # Ex: "mutation bar { deleteCard(id: \"1\") {id} }"
     argument :id, !types.ID
     resolve -> (object, args, context) {
       id = args['id']
