@@ -86,8 +86,6 @@ class GraphQlControllerTest < ActionController::TestCase
 
     reader = Transit::Reader.new(:json, StringIO.new(@response.body))
     assert_equal expected, reader.read
-
-    # TODO dependent destroy
   end
 
   private

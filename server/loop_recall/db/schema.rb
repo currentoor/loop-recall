@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151021050931) do
+ActiveRecord::Schema.define(version: 20151022045221) do
 
   create_table "cards", force: :cascade do |t|
     t.text     "question"
@@ -34,6 +34,10 @@ ActiveRecord::Schema.define(version: 20151021050931) do
     t.integer  "card_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal  "e_factor"
+    t.integer  "interval"
+    t.date     "due_date"
+    t.integer  "repetition"
   end
 
   add_index "user_cards", ["card_id"], name: "index_user_cards_on_card_id"

@@ -7,6 +7,10 @@
 #  card_id    :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  e_factor   :decimal(, )
+#  interval   :integer
+#  due_date   :date
+#  repetition :integer
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html

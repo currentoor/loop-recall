@@ -9,7 +9,7 @@
 #
 
 class Deck < ActiveRecord::Base
-  has_many :user_decks
-  has_many :cards
+  has_many :user_decks, dependent: :destroy
+  has_many :cards, dependent: :destroy
   has_many :users, through: :user_decks
 end

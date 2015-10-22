@@ -65,7 +65,7 @@ MutationRoot = GraphQL::ObjectType.define do
     argument :id, !types.ID
     resolve -> (object, args, context) {
       id = args['id']
-      Card.find(id).delete
+      Card.find(id).destroy
     }
   end
 
@@ -108,7 +108,7 @@ MutationRoot = GraphQL::ObjectType.define do
     argument :id, !types.ID
     resolve -> (object, args, context) {
       id = args['id']
-      Deck.find(id).delete
+      Deck.find(id).destroy
     }
   end
 end

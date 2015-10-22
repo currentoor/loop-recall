@@ -8,8 +8,8 @@
 #
 
 class User < ActiveRecord::Base
-  has_many :user_cards
-  has_many :user_decks
-  has_many :cards, through: :user_cards
-  has_many :decks, through: :user_decks
+  has_many :user_cards, dependent: :destroy
+  has_many :user_decks, dependent: :destroy
+  has_many :cards, through: :user_cards, dependent: :destroy
+  has_many :decks, through: :user_decks, dependent: :destroy
 end

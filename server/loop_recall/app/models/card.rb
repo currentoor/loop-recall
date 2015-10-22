@@ -12,6 +12,6 @@
 
 class Card < ActiveRecord::Base
   belongs_to :deck
-  has_many :user_cards
+  has_many :user_cards, dependent: :destroy
   has_many :users, through: :user_cards
 end
