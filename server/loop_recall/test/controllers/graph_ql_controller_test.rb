@@ -67,6 +67,16 @@ class GraphQlControllerTest < ActionController::TestCase
     assert_equal expected, reader.read
   end
 
+  test 'should answer card' do
+    m ="mutation bar { answerCard(card_id: \"#{@c1.id}\", user_id: \"#{@user.id}\", response: 5) {due_date_str} }"
+    post :mutation, mutation: m
+
+    expected = {"data"=>{"answerCard"=>{"due_date_str"=>"#{(Date.today+6).to_s}"}}}
+
+    reader = Transit::Reader.new(:json, StringIO.new(@response.body))
+    assert_equal expected, reader.read
+  end
+
   test 'should delete card' do
     m = "mutation bar { deleteCard(id: \"#{@c1.id}\") {question, answer} }"
     post :mutation, mutation: m

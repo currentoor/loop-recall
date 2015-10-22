@@ -61,6 +61,23 @@ MutationRoot = GraphQL::ObjectType.define do
     }
   end
 
+  field :answerCard, UserCardType do
+    argument :card_id, !types.ID
+    argument :user_id, !types.ID
+    argument :response, !types.Int
+    resolve -> (object, args, context) {
+      card_id, user_id, response = [
+        args['card_id'],
+        args['user_id'],
+        args['response']
+      ]
+
+      uc = UserCard.where(card_id: card_id, user_id: user_id).first
+      uc.answer!(response)
+      uc
+    }
+  end
+
   field :deleteCard, CardType do
     argument :id, !types.ID
     resolve -> (object, args, context) {

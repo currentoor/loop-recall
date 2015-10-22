@@ -25,7 +25,12 @@ class UserCard < ActiveRecord::Base
     self.repetition = 1
   end
 
-  def answer!(resp)
+  def due_date_str
+    self.due_date.to_s
+  end
+
+  def answer!(response)
+    resp = response.to_i
     if resp < 3
       self.repetition = 1
       self.interval = 1
