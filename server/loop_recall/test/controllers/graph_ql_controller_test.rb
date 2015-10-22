@@ -19,6 +19,35 @@ class GraphQlControllerTest < ActionController::TestCase
     assert_equal expected, reader.read
   end
 
+  test "should get due cards" do
+    get :query, query: "query getDueCards { dueCards {deck_id, question, answer} }"
+    expected = {"data"=>
+      {"dueCards"=>[
+      {"deck_id"=>"#{@ruby.id}",
+      "question"=>"a",
+      "answer"=>"a"},
+      {"deck_id"=>"#{@ruby.id}",
+      "question"=>"b",
+      "answer"=>"b"}
+    ]}}
+
+    reader = Transit::Reader.new(:json, StringIO.new(@response.body))
+    assert_equal expected, reader.read
+
+    uc = UserCard.where(user: @user, card: @c1).first
+    uc.due_date = Date.today + 1
+    uc.save!
+
+    get :query, query: "query getDueCards { dueCards {deck_id, question, answer} }"
+    expected = {"data"=>
+      {"dueCards"=>[{"deck_id"=>"#{@ruby.id}",
+      "question"=>"b",
+      "answer"=>"b"}]}}
+
+    reader = Transit::Reader.new(:json, StringIO.new(@response.body))
+    assert_equal expected, reader.read
+  end
+
   test "should get cards" do
     get :query, query: "query getCards { cards {question, answer} }"
     expected = {"data"=>
