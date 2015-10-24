@@ -22,7 +22,8 @@
     (mui/card
      (mui/card-title {:title "Card" :subtitle subtitle})
 
-     (mui/card-text question)
+     [:div..study-question
+      (mui/card-text question)]
 
      [:div.row
       [:div.col-xs-2.center
@@ -55,7 +56,7 @@
 
 (defcs page [state db]
   (query
-   "query getCards { user(id: 1) { cards{id, question, answer} } }"
+   "query getDueCards { user(id: 1) { cards{id, question, answer} } }"
    (fn [data]
      (let [cards                     (get-in data ["user" "cards"])
            index                     (or (system-attr db :study/card-index) 0)

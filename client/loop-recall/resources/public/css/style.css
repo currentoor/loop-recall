@@ -9,3 +9,15 @@ html {
 }
 
 .center { text-align: center; }
+
+.study-question {
+    min-height: 210px;
+}
+
+.create-card-btn {
+    margin: 20px;
+}
+
+.new-card-form {
+    margin: 30px;
+}
