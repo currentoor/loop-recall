@@ -11,8 +11,8 @@
 
 (defroute "/" []
   (set-system-attrs! :page :home))
-(defroute "/twitter" []
-  (set-system-attrs! :page :twitter-dash))
+(defroute "/new" []
+  (set-system-attrs! :page :new))
 (defroute "/all_campaigns" []
   (set-system-attrs! :page :all-campaigns))
 (defroute "/twitter_creation" []

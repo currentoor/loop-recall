@@ -10,7 +10,7 @@
         this            (:rum/react-component state)
         menu-items      [{ :route "#/" :text "Home" }
                          { :route "#/study" :text "Study" }
-                         { :route "#/create_new" :text "Create New" }
+                         { :route "#/new" :text "Create New" }
                          { :route "#/all_cards" :text "All Cards" }
                          { :type js/window.MaterialUI.MenuItem.Types.SUBHEADER :text "Account" }
                          { :route "#/settings" :text "Settings" }
