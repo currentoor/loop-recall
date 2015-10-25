@@ -7,8 +7,7 @@
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (defc page [db]
-  [:div.row.new-card-form
+  [:div.row.page
    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
-    (mui/card
-     (card/q&a db :new)
-     )]])
+    (card/new-card db)
+    ]])
