@@ -5,6 +5,12 @@
             [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
+(defn fetch [query cb]
+  (GET "http://localhost:3000/graph_ql/query"
+      {:params          {:query (js/encodeURIComponent query)}
+       :response-format :transit
+       :handler         cb}))
+
 (def ^:private query-mixin
   {:did-mount (fn [{[query] :rum/args :as state}]
                 (GET "http://localhost:3000/graph_ql/query"

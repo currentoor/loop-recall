@@ -14,15 +14,15 @@
 (def previous-index (partial mod-shift -1))
 
 (defcs page [state db]
-  (query
-   "query getDueCards { user(id: 1) { cards{id, question, answer} } }"
-   (fn [data]
-     (let [cards                     (get-in data ["user" "cards"])
-           index                     (or (system-attr db :study/card-index) 0)
-           total                     (count cards)
-           {:strs [question answer]} (cards index)]
-       [:div.page
-        (card/study-card db question answer (str (inc index) " of " total)
-                         :prev #(set-system-attrs! :study/card-index (previous-index index total))
-                         :next #(set-system-attrs! :study/card-index (next-index index total)))]))))
+  (let [cards                     (vec (store/due-cards))
+        index                     (or (system-attr db :study/card-index) 0)
+        total                     (count cards)]
+    [:div.page
+     (if (seq cards)
+       (let [{:keys [deck question answer id deck-name]} (cards index)]
+         (card/study-card db question answer id
+                          deck-name
+                          (str (inc index) " of " total)
+                          :prev #(set-system-attrs! :study/card-index (previous-index index total))
+                          :next #(set-system-attrs! :study/card-index (next-index index total)))))]))
 

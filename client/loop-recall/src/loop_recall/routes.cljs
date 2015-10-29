@@ -13,6 +13,8 @@
   (set-system-attrs! :page :home))
 (defroute "/new" []
   (set-system-attrs! :page :new))
+(defroute "/study" []
+  (set-system-attrs! :page :study))
 (defroute "/all_campaigns" []
   (set-system-attrs! :page :all-campaigns))
 (defroute "/twitter_creation" []
