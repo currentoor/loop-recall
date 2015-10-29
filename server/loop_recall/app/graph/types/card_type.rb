@@ -5,4 +5,5 @@ CardType = GraphQL::ObjectType.define do
   field :deck_id, !types.ID
   field :question, !types.String
   field :answer, !types.String
+  field :deck, -> { !DeckType }
 end
