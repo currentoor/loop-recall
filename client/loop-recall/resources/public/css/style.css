@@ -9,9 +9,16 @@ html {
 }
 
 .center { text-align: center; }
+.right { text-align: right; }
+.left { text-align: left; }
 
 .study-question {
     min-height: 210px;
+}
+
+.study-answer {
+    margin-top: 10px;
+    min-height: 200px;
 }
 
 .create-card-btn {
