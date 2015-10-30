@@ -35,43 +35,9 @@
        (mui/circular-progress {:size 0.5})]
       (child data))))
 
-(def ^:private mutation-mixin
-  {:did-mount (fn [{[query] :rum/args :as state}]
-                (GET "http://localhost:3000/graph_ql/query"
-                    {:params          {:query (js/encodeURIComponent query)}
-                     :response-format :transit
-                     :handler         (fn [resp]
-                                        (swap! (:rum/local state)
-                                               assoc :loading? false
-                                               :data (resp "data")))})
-                state)})
-
-(def ^:private mutation-init-state
-  {:loading? false})
-
-(defcs mutation < (rum/local mutation-init-state) [state child]
-  (let [{:keys [loading? data]} @(:rum/local state)
-        mutate (fn [graph-ql cb]
-                 (swap! (:rum/local state) assoc :loading? true)
-                 (POST "http://localhost:3000/graph_ql/mutation"
-                     {:params          {:mutation graph-ql}
-                      :response-format :transit
-                      :handler         (fn [resp]
-                                         (swap! (:rum/local state)
-                                                assoc :loading? false)
-                                         (cb resp))}))]
-    [:div
-     [:div.center {:style (if loading? {} {:visibility "hidden"})}
-      (mui/circular-progress {:size 0.5})
-      (mui/circular-progress {:size 0.5})
-      (mui/circular-progress {:size 0.5})]
-     (child mutate)]))
-
-(defcs optimistic-mutation [state child]
-  (let [mutate (fn [graph-ql cb]
-                 (POST "http://localhost:3000/graph_ql/mutation"
-                     {:params          {:mutation graph-ql}
-                      :response-format :transit
-                      :handler         (fn [resp]
-                                         (cb resp))}))]
-    (child mutate)))
+(defn mutate [graph-ql cb]
+  (POST "http://localhost:3000/graph_ql/mutation"
+      {:params          {:mutation graph-ql}
+       :response-format :transit
+       :handler         (fn [resp]
+                          (cb resp))}))

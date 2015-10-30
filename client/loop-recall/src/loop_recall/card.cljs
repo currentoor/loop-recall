@@ -2,7 +2,7 @@
   (:require-macros [loop-recall.macros :refer [inspect]]
                    [loop-recall.material :as mui])
   (:require [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
-            [loop-recall.utility :refer [query mutation optimistic-mutation]]
+            [loop-recall.utility :refer [query]]
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (defn- handle-change-cb [key]
@@ -102,7 +102,7 @@
   (set-system-attrs! :edit/card-question question)
   (set-system-attrs! :edit/card-answer answer))
 
-(defcs study-header < (rum/local false) [state db title subtitle card-id question answer]
+(defcs study-header < (rum/local false) [state db title subtitle card-id remote-id question answer]
   (let [this            (:rum/react-component state)
         show-card-menu? (:rum/local state)]
     [:div
@@ -123,9 +123,12 @@
      (mui/dialog {:title                  "Edit"
                   :actions                [{:text "cancel"}
                                            {:text       "submit"
-                                            ;; :onTouchTap #(and (update-card db card-id)
-                                            ;;                   (.dismiss (.. this -refs -editModal)))
-                                            }]
+                                            :onTouchTap #(and (store/update-card
+                                                               card-id
+                                                               :question (system-attr db :edit/card-question)
+                                                               :answer (system-attr db :edit/card-answer)
+                                                               :remote-id remote-id)
+                                                              (.dismiss (.. this -refs -editModal)))}]
                   :onShow                 #(load-q-&-a question answer)
                   :autoDetectWindowHeight true
                   :autoScrollBodyContent  true
@@ -146,13 +149,14 @@
   (let [previous (system-attr @conn :show-answer?)]
     (set-system-attrs! :show-answer? (not previous))))
 
-(defc study-card [db question answer card-id deckname subtitle & {:keys [prev next]}]
+(defc study-card [db question answer card-id remote-id deckname subtitle & {:keys [prev next]}]
   [:div.row
    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
     (mui/card
      (study-header db deckname
                    subtitle
                    card-id
+                   remote-id
                    question
                    answer)
 
