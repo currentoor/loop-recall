@@ -8,7 +8,7 @@
               [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
               [loop-recall.study :as study]
               [loop-recall.theme :refer [color-theme]]
-              [loop-recall.utility :refer [query mutation] :as util]
+              [loop-recall.utility :refer [query] :as util]
               [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (enable-console-print!)

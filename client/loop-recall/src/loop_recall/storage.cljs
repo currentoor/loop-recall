@@ -55,7 +55,7 @@
                          [?c :card/deck-name ?deckname]
                          ]
                        @conn)]
-    ;; TODO macro to clean this for sorted up.
+    ;; TODO clean this for sorted up?
     (->> (for [[id q a deck-id deck-name remote-id] db-result]
            {:id        id
             :question  q
@@ -74,7 +74,6 @@
            {:id   id
             :name deck-name})
          (sort-by :id))))
-
 
 (defn cards [deck-id]
   (let [db-result (d/q '[:find ?d ?c ?question ?answer ?learn-seq ?due-date ?remote-id
@@ -115,21 +114,34 @@
                       ])))
 
 (defn mutate [graph-ql & {cb :cb}]
-  (inspect graph-ql)
   (POST "http://localhost:3000/graph_ql/mutation"
       {:params          {:mutation graph-ql}
        :response-format :transit
        :handler         (if cb
                           #(cb %))}))
 
+;; Ghetto encoding because graph-ql relies on strings.
+(defn escape [s]
+  (-> (clojure.string/replace s #"\\\\\\\"" "__999__")
+      (clojure.string/replace #"\\\\\"" "__888__")
+      (clojure.string/replace #"\\\"" "__777__")
+      (clojure.string/replace #"\"" "__666__")))
+
+(defn unescape [s]
+  (-> (clojure.string/replace s #"__999__" "\\\\\\\"" )
+      (clojure.string/replace #"__888__" "\\\\\"" )
+      (clojure.string/replace #"__777__" "\\\"" )
+      (clojure.string/replace #"__666__" "\"" )))
+
 (defn update-card [id & {:keys [remote-id question answer response-quality] :as card}]
   (when question (d/transact! conn [[:db/add id :card/question question]]))
   (when answer (d/transact! conn [[:db/add id :card/answer answer]]))
   (when (and question answer remote-id)
-    (mutate (str "mutation bar { updateCard(question: \"" question
-                 "\", answer: \"" answer
+    (mutate (str "mutation bar { updateCard(question: \"" (escape question)
+                 "\", answer: \"" (escape answer)
                  "\", id: \"" remote-id
                  "\") {id} }")))
+  ;;; answering a card
   ;; (when (and learn-seq response-quality)
   ;;   (let [{interval :days-to-next new-learn-seq :learn-seq}
   ;;         (algo/determine-next-interval response-quality learn-seq)
@@ -138,8 +150,11 @@
   ;;                        [:db/add id :card/due-date (inc-by-interval (today) interval*)]])))
   )
 
-(defn delete-card [id]
-  (d/transact! conn [[:db.fn/retractEntity id]]))
+(defn delete-card [id remote-id]
+  (d/transact! conn [[:db.fn/retractEntity id]])
+  (mutate (str "mutation bar { deleteCard(id: \""
+               remote-id
+               "\") {id} }")))
 
 ;; multi-method
 (defn- normalize-card [{:strs [id question answer deck] :as card}]
@@ -148,8 +163,8 @@
         deck-name (deck "name")]
     {:db/id               tempid
      :card/remote-id      id
-     :card/question       question
-     :card/answer         answer
+     :card/question       (unescape question)
+     :card/answer         (unescape answer)
      :card/due?           true
      :card/remote-deck-id deck-id
      :card/deck-name      deck-name}))

@@ -2,7 +2,7 @@
   (:require-macros [loop-recall.macros :refer [inspect]]
                    [loop-recall.material :as mui])
   (:require [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
-            [loop-recall.utility :refer [query mutation]]
+            [loop-recall.utility :refer [query]]
             [loop-recall.card :as card]
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 

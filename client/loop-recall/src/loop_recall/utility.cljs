@@ -1,9 +1,18 @@
 (ns loop-recall.utility
   (:require-macros [loop-recall.macros :refer [inspect]]
                    [loop-recall.material :as mui])
+  (:import [goog Delay])
   (:require [ajax.core :refer [GET POST]]
             [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
+
+(defn debounce [f interval]
+  (let [timeout (atom nil)]
+    (fn [& args]
+      (when-not (nil? @timeout)
+        (.disposeInternal @timeout))
+      (reset! timeout (Delay. #(apply f args)))
+      (.start @timeout interval))))
 
 (defn fetch [query cb]
   (GET "http://localhost:3000/graph_ql/query"
@@ -35,9 +44,3 @@
        (mui/circular-progress {:size 0.5})]
       (child data))))
 
-(defn mutate [graph-ql cb]
-  (POST "http://localhost:3000/graph_ql/mutation"
-      {:params          {:mutation graph-ql}
-       :response-format :transit
-       :handler         (fn [resp]
-                          (cb resp))}))
