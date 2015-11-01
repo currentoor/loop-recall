@@ -6,6 +6,8 @@
 
   :dependencies [
                  [cljs-ajax "0.5.0"]
+                 [cljsjs/highlight "8.4-0"]
+                 [cljsjs/marked "0.3.5-0"]
                  [com.cognitect/transit-cljs "0.8.137"]
                  [datascript "0.13.1"]
                  [org.clojure/clojure "1.7.0"]
