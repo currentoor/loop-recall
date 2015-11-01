@@ -101,13 +101,23 @@
        (if (system-attr db :show-answer?)
          (mui/card-actions
           (mui/raised-button {:onClick #(and (toggle-answer)
-                                             ;; (mutate (str "mutation bar { answerCard(card_id: \"" card-id
-                                             ;;              "\", user_id: \"" 1
-                                             ;;              "\", response: 0) {due_date_str} }"))
-                                             )
+                                             (store/update-card
+                                              card-id
+                                              :remote-id remote-id
+                                              :response  "0"))
                               :backgroundColor "#820000" :primary true :label "Wrong"})
-          (mui/raised-button {:onClick toggle-answer :label "Almost"})
-          (mui/raised-button {:onClick toggle-answer :secondary true :label "Correct"}))
+          (mui/raised-button {:onClick #(and (toggle-answer)
+                                             (store/update-card
+                                              card-id
+                                              :remote-id remote-id
+                                              :response  "3"))
+                              :label "Almost"})
+          (mui/raised-button {:onClick #(and (toggle-answer)
+                                             (store/update-card
+                                              card-id
+                                              :remote-id remote-id
+                                              :response  "5"))
+                              :secondary true :label "Correct"}))
          (mui/card-actions
           (mui/flat-button {:onClick toggle-answer :label "Show Answer"})))]
 
