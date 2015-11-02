@@ -39,7 +39,7 @@
   (hook-browser-navigation!))
 
 ;;; Load initial data.
-(defonce due-cards-fetch (util/fetch "query getDueCards { user(id: 1) { cards{id, question, answer, deck{id, name}} } }"
+(defonce due-cards-fetch (util/fetch "query getDueCards { dueCards {id, question, answer, deck{id, name}} }"
                                      store/insert-due-cards))
 (defonce decks-fetch (util/fetch "query getDecks { decks {id, name} }"
                                  store/insert-decks))
