@@ -18,6 +18,14 @@ class UserCard < ActiveRecord::Base
   belongs_to :card
   after_initialize :sm2_defaults
 
+  def self.reset!(user_id)
+    ucs = UserCard.where(user_id: user_id)
+    ucs.each do |uc|
+      uc.due_date = Date.today
+      uc.save!
+    end
+  end
+
   def sm2_defaults
     self.e_factor = 2.5
     self.interval = 1
