@@ -13,10 +13,14 @@
 (def next-index     (partial mod-shift 1))
 (def previous-index (partial mod-shift -1))
 
+(defn moded [idx total]
+  (mod idx total))
+
 (defcs page [state db]
   (let [cards                     (vec (store/due-cards))
-        index                     (or (system-attr db :study/card-index) 0)
-        total                     (count cards)]
+        index*                    (or (system-attr db :study/card-index) 0)
+        total                     (count cards)
+        index                     (moded index* total)]
     [:div.page
      (if (seq cards)
        (let [{:keys [deck question answer id deck-name remote-id]} (cards index)]

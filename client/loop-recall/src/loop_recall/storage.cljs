@@ -7,7 +7,6 @@
 (def schema {:card/question  {}
              :card/answer    {}
              :card/deck      {:db/valueType :db.type/ref}
-             :card/learn-seq {}
              :card/due-date  {}
 
              :deck/name      {}
@@ -120,7 +119,7 @@
        :handler         (if cb
                           #(cb %))}))
 
-;; Ghetto encoding because graph-ql relies on strings.
+;; Ghetto encoding because graph-ql is defined by strings.
 (defn escape [s]
   (-> (clojure.string/replace s #"\\\\\\\"" "__999__")
       (clojure.string/replace #"\\\\\"" "__888__")
@@ -133,22 +132,23 @@
       (clojure.string/replace #"__777__" "\\\"" )
       (clojure.string/replace #"__666__" "\"" )))
 
-(defn update-card [id & {:keys [remote-id question answer response-quality] :as card}]
-  (when question (d/transact! conn [[:db/add id :card/question question]]))
-  (when answer (d/transact! conn [[:db/add id :card/answer answer]]))
+(defn update-card [id & {:keys [remote-id question answer] :as card}]
   (when (and question answer remote-id)
+    (d/transact! conn [[:db/add id :card/question question]
+                       [:db/add id :card/answer answer]])
     (mutate (str "mutation bar { updateCard(question: \"" (escape question)
                  "\", answer: \"" (escape answer)
                  "\", id: \"" remote-id
-                 "\") {id} }")))
-  ;;; answering a card
-  ;; (when (and learn-seq response-quality)
-  ;;   (let [{interval :days-to-next new-learn-seq :learn-seq}
-  ;;         (algo/determine-next-interval response-quality learn-seq)
-  ;;         interval* (if (= 0 response-quality) 1 interval)]
-  ;;     (d/transact! conn [[:db/add id :card/learn-seq new-learn-seq]
-  ;;                        [:db/add id :card/due-date (inc-by-interval (today) interval*)]])))
-  )
+                 "\") {id} }"))))
+
+(defn answer-card [id & {:keys [remote-id response]}]
+  (when response
+    (d/transact! conn [[:db/add id :card/due? false]])
+    (mutate (str "mutation bar { answerCard(card_id: \""
+                 remote-id
+                 "\", user_id: \"" 1
+                 "\", response: " response
+                 ") {due_date_str} }"))))
 
 (defn delete-card [id remote-id]
   (d/transact! conn [[:db.fn/retractEntity id]])
@@ -176,7 +176,8 @@
      :deck/remote-id id}))
 
 (defn insert-due-cards [data]
-  (let [cards  (get-in data ["data" "user" "cards"])
+  (inspect data)
+  (let [cards  (get-in data ["data" "dueCards"])
         ncards (mapv normalize-card cards)]
     (d/transact! conn ncards)))
 
