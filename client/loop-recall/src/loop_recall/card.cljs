@@ -42,6 +42,35 @@
                         (dyn/reset-state!))
          :label "Create"})]])]])
 
+(defcc new-deck-input < rum/reactive [comp ref]
+  (mui/text-field {:hintText          "Ex: Git Commands"
+                   :fullWidth         true
+                   :value             (rum/react ref)
+                   :onChange          (fn [e]
+                                        (reset! ref (.. e -target -value))
+                                        (.forceUpdate comp))
+                   :floatingLabelText "Name"}))
+
+
+(def deck-name (atom {:text ""}))
+
+(defc new-deck [db]
+  [:div.row
+   [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-10.col-md-offset-1
+    (mui/card
+     (mui/card-title {:title "New Deck"})
+     [:div.row
+      [:div.col-xs-12.col-sm-10.col-sm-offset-1
+       (new-deck-input
+        (rum/cursor deck-name [:text]))]]
+     [:div.row
+      [:div.col-xs-6.center.col-xs-offset-6
+       (mui/raised-button
+        {:secondary true
+         :onClick #(and (store/create-deck (:text @deck-name))
+                        (reset! deck-name {:text ""}))
+         :label "Create"})]])]])
+
 (defn card-menu-options [& {:keys [on-edit on-delete]}]
   (mui/list
    (mui/list-divider)
@@ -118,7 +147,7 @@
                    question
                    answer)
 
-     [:div..study-question
+     [:div.study-question
       (mui/card-text
        [:div {:dangerouslySetInnerHTML {:__html (markdown->html question)}}])]
 

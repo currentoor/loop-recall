@@ -96,29 +96,6 @@
                  :remote-id ri
                  :due-date  dd})))))
 
-(defn create-deck [& {:keys [id name]}]
-  (d/transact conn [{:db/id          -1
-                     :deck/name      name
-                     :deck/remote-id id
-                     :deck/cards     []}]))
-
-(defn local-create-card [& {:keys [deck-name remote-deck-id question answer] :as args}]
-  (when (and deck-name question answer)
-    (d/transact conn [{:db/id               -1
-                       ;; :card/remote-id      1 ;;id TODO set this async
-                       :card/question       question
-                       :card/answer         answer
-                       :card/due?           true
-                       :card/remote-deck-id remote-deck-id
-                       :card/deck-name      deck-name}])
-    ;; TODO this is ghetto, need a better way to sync remote/local state.
-    (let [db-result (d/q [:find '?id
-                          :where
-                          ['?id :card/question question]
-                          ['?id :card/answer answer]]
-                         @conn)]
-      (->> db-result (into []) flatten (apply max)))))
-
 (defn mutate [graph-ql & {cb :cb}]
   (POST "http://localhost:3000/graph_ql/mutation"
       {:params          {:mutation graph-ql}
@@ -154,6 +131,18 @@
                                     :card/due?           true
                                     :card/remote-deck-id remote-deck-id
                                     :card/deck-name      deck-name}]))))
+
+(defn create-deck [name]
+  (mutate (str "mutation bar { createDeck(name: \"" name
+               "\" user_id: \"" 1
+               "\") {id} }"
+               )
+          :cb #(let [_ (inspect %)
+                     remote-id (inspect (get-in % ["data" "createDeck" "id"]))]
+                 (d/transact conn [{:db/id          -1
+                                    :deck/name      name
+                                    :deck/remote-id remote-id
+                                    :deck/cards     []}]))))
 
 (defn update-card [id & {:keys [remote-id question answer] :as card}]
   (when (and question answer remote-id)
