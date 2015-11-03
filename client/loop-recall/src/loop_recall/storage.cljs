@@ -65,13 +65,15 @@
          (sort-by :id))))
 
 (defn all-decks []
-  (let [db-result (d/q '[:find ?d ?deckname
+  (let [db-result (d/q '[:find ?d ?deckname ?remote-id
                          :where
-                         [?d :deck/name ?deckname]]
+                         [?d :deck/name ?deckname]
+                         [?d :deck/remote-id ?remote-id]]
                        @conn)]
-    (->> (for [[id deck-name] db-result]
-           {:id   id
-            :name deck-name})
+    (->> (for [[id deck-name remote-id] db-result]
+           {:id        id
+            :name      deck-name
+            :remote-id remote-id})
          (sort-by :id))))
 
 (defn cards [deck-id]
@@ -94,23 +96,28 @@
                  :remote-id ri
                  :due-date  dd})))))
 
-;; normalize
 (defn create-deck [& {:keys [id name]}]
   (d/transact conn [{:db/id          -1
                      :deck/name      name
                      :deck/remote-id id
                      :deck/cards     []}]))
 
-;; normalize
-(defn create-card [& {:keys [deck-id question answer] :as args}]
-  (when (and deck-id question answer)
-    (d/transact conn [{:db/id          -1
-                       :card/question  question
-                       :card/answer    answer
-                       :card/due?      true
-                       ;:card/deck      (js/parseInt deck-id)
-                       }
-                      ])))
+(defn local-create-card [& {:keys [deck-name remote-deck-id question answer] :as args}]
+  (when (and deck-name question answer)
+    (d/transact conn [{:db/id               -1
+                       ;; :card/remote-id      1 ;;id TODO set this async
+                       :card/question       question
+                       :card/answer         answer
+                       :card/due?           true
+                       :card/remote-deck-id remote-deck-id
+                       :card/deck-name      deck-name}])
+    ;; TODO this is ghetto, need a better way to sync remote/local state.
+    (let [db-result (d/q [:find '?id
+                          :where
+                          ['?id :card/question question]
+                          ['?id :card/answer answer]]
+                         @conn)]
+      (->> db-result (into []) flatten (apply max)))))
 
 (defn mutate [graph-ql & {cb :cb}]
   (POST "http://localhost:3000/graph_ql/mutation"
@@ -131,6 +138,22 @@
       (clojure.string/replace #"__888__" "\\\\\"" )
       (clojure.string/replace #"__777__" "\\\"" )
       (clojure.string/replace #"__666__" "\"" )))
+
+(defn create-card [& {:keys [deck-name remote-deck-id question answer] :as args}]
+  (mutate (str "mutation bar { createCard(deck_id: " remote-deck-id
+               ",question: \"" (escape question)
+               "\", answer: \"" (escape answer)
+               "\", user_id: \"" 1
+               "\") {id} }"
+               )
+          :cb #(let [remote-id (get-in % ["data" "createCard" "id"])]
+                 (d/transact conn [{:db/id               -1
+                                    :card/remote-id      remote-id
+                                    :card/question       question
+                                    :card/answer         answer
+                                    :card/due?           true
+                                    :card/remote-deck-id remote-deck-id
+                                    :card/deck-name      deck-name}]))))
 
 (defn update-card [id & {:keys [remote-id question answer] :as card}]
   (when (and question answer remote-id)
@@ -176,7 +199,6 @@
      :deck/remote-id id}))
 
 (defn insert-due-cards [data]
-  (inspect data)
   (let [cards  (get-in data ["data" "dueCards"])
         ncards (mapv normalize-card cards)]
     (d/transact! conn ncards)))

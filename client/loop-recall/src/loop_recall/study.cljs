@@ -28,5 +28,6 @@
                           deck-name
                           (str (inc index) " of " total)
                           :prev #(set-system-attrs! :study/card-index (previous-index index total))
-                          :next #(set-system-attrs! :study/card-index (next-index index total)))))]))
+                          :next #(set-system-attrs! :study/card-index (next-index index total))))
+       [:h2 "Congrats! You are finished studying for today."])]))
 

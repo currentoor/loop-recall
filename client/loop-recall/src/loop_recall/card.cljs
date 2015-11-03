@@ -8,6 +8,40 @@
    [loop-recall.theme :refer [markdown->html]]
    [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
+(defc new-card [db decks]
+  [:div.row
+   [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-10.col-md-offset-1
+    (mui/card
+     (mui/card-title {:title "New Card"})
+     [:div.row
+      [:div.col-xs-3.col-xs-offset-1
+       [:span "Target Deck"]]
+      [:div.col-xs-6
+       (mui/select-field {:value         (or (system-attr db :new/target-deck-remote-id)
+                                             (-> decks first :remote-id))
+                          :onChange      #(set-system-attrs! :new/target-deck-remote-id (.-remote-id %3))
+                          :valueMember   "remote-id"
+                          :displayMember "name"
+                          :menuItems     decks})]]
+     [:div.row
+      [:div.col-xs-12
+       (dyn/q&a "" "")]]
+     [:div.row
+      [:div.col-xs-6.center
+       (mui/raised-button
+        {:onClick #(inspect 'todo) :label "Preview"})]
+      [:div.col-xs-6.center
+       (mui/raised-button
+        {:secondary true
+         :onClick #(and (store/create-card
+                          :deck-name "Clojure"
+                          :remote-deck-id (or (system-attr db :new/target-deck-remote-id)
+                                              (-> decks first :remote-id))
+                          :question (:question @dyn/macro-state)
+                          :answer (:answer @dyn/macro-state))
+                        (dyn/reset-state!))
+         :label "Create"})]])]])
+
 (defn card-menu-options [& {:keys [on-edit on-delete]}]
   (mui/list
    (mui/list-divider)

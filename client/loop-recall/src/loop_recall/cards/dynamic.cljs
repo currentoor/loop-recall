@@ -14,6 +14,10 @@
   (atom {:question ""
          :answer   ""}))
 
+(defn reset-state! []
+  (reset! macro-state {:question ""
+                       :answer   ""}))
+
 (defcc input-wrapper < rum/reactive [comp hint label ref]
   (mui/text-field {:hintText          hint
                    :multiLine         true
