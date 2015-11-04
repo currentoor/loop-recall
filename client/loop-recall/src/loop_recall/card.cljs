@@ -19,7 +19,8 @@
       [:div.col-xs-6
        (mui/select-field {:value         (or (system-attr db :new/target-deck-remote-id)
                                              (-> decks first :remote-id))
-                          :onChange      #(set-system-attrs! :new/target-deck-remote-id (.-remote-id %3))
+                          :onChange      #(and (set-system-attrs! :new/target-deck-remote-id (aget %3 "remote-id")
+                                                                  :new/target-deck-name      (aget %3 "name")))
                           :valueMember   "remote-id"
                           :displayMember "name"
                           :menuItems     decks})]]
@@ -34,7 +35,8 @@
        (mui/raised-button
         {:secondary true
          :onClick #(and (store/create-card
-                          :deck-name "Clojure"
+                         :deck-name (or (system-attr db :new/target-deck-name)
+                                        (-> decks first :name))
                           :remote-deck-id (or (system-attr db :new/target-deck-remote-id)
                                               (-> decks first :remote-id))
                           :question (:question @dyn/macro-state)
