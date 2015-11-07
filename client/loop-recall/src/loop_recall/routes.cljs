@@ -15,8 +15,8 @@
   (set-system-attrs! :page :new))
 (defroute "/study" []
   (set-system-attrs! :page :study))
-(defroute "/all_campaigns" []
-  (set-system-attrs! :page :all-campaigns))
+(defroute "/all_decks" []
+  (set-system-attrs! :page :all-decks))
 (defroute "/twitter_creation" []
   (set-system-attrs! :page :twitter-creation))
 

@@ -4,8 +4,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [
-                 [cljs-ajax "0.5.0"]
+  :dependencies [[cljs-ajax "0.5.0"]
+                 [com.cemerick/piggieback "0.2.1"]
                  [cljsjs/highlight "8.4-0"]
                  [cljsjs/marked "0.3.5-0"]
                  [com.cognitect/transit-cljs "0.8.137"]
@@ -14,8 +14,7 @@
                  [org.clojure/clojurescript "1.7.122"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [rum "0.5.0" :exclusions [cljsjs/react]]
-                 [secretary "1.2.3"]
-                 ]
+                 [secretary "1.2.3"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-figwheel "0.4.1"]]
@@ -35,12 +34,22 @@
                          :output-to "resources/public/js/compiled/loop_recall.js"
                          :output-dir "resources/public/js/compiled/out"
                          :source-map-timestamp true }}
+             {:id "med"
+              :source-paths ["src"]
+              :compiler {:output-to "resources/public/js/compiled/loop_recall.js"
+                         :main loop-recall.core
+                         :externs ["externs/react.js"]
+                         :optimizations :simple
+                         :pretty-print false}}
              {:id "min"
               :source-paths ["src"]
               :compiler {:output-to "resources/public/js/compiled/loop_recall.js"
                          :main loop-recall.core
+                         :externs ["externs/react.js"]
                          :optimizations :advanced
                          :pretty-print false}}]}
+
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources" 

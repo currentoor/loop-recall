@@ -11,7 +11,7 @@
         menu-items      [{ :route "#/" :text "Home" }
                          { :route "#/study" :text "Study" }
                          { :route "#/new" :text "Create New" }
-                         { :route "#/all_cards" :text "All Cards" }
+                         { :route "#/all_decks" :text "All Decks" }
                          { :type js/window.MaterialUI.MenuItem.Types.SUBHEADER :text "Account" }
                          { :route "#/settings" :text "Settings" }
                          ]]

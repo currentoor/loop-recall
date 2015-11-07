@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  root 'graph_ql#index'
   get 'graph_ql/query'
   post 'graph_ql/mutation'
 

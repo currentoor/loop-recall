@@ -72,6 +72,14 @@ window.MaterialUI.TableRowColumn = function() {};
 window.MaterialUI.TextField = function() {};
 window.MaterialUI.Toggle = function() {};
 
+window.marked = {};
+window.marked.setOptions = function() {};
+
+window.hljs = {};
+window.hljs.highlightAuto = {};
+window.hljs.highlightAuto.value = {};
+
+
 Object.route = function() {};
 Object.payload = function() {};
 

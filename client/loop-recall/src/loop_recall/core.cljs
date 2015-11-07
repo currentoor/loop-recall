@@ -5,6 +5,7 @@
     (:require [loop-recall.navbar :refer [navbar]]
               [loop-recall.routes :refer [hook-browser-navigation!]]
               [loop-recall.new-stuff :as new-stuff]
+              [loop-recall.all-decks :as all-decks]
               [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
               [loop-recall.study :as study]
               [loop-recall.theme :refer [color-theme]]
@@ -18,7 +19,7 @@
    [:div.col-xs-10.col-xs-offset-1
     [:h2 "Welcome to LoopRecall!"]]
    [:div.col-xs-12.col-sm-10.col-sm-offset-1
-    [:img {:src "images/visual.svg"
+    [:img {:src "http://loop-recall-assets.s3-us-west-1.amazonaws.com/images/visual.svg"
            :width "100%" :height "100%"
            :alt "Spaced Repetition"}]]])
 
@@ -29,8 +30,9 @@
      (navbar)
 
      (condp = page
-       :new   (new-stuff/page db)
-       :study (study/page db)
+       :new       (new-stuff/page db)
+       :study     (study/page db)
+       :all-decks (all-decks/page db)
        (home-page db))]))
 
 (rum/mount (app conn) (js/document.getElementById "app"))

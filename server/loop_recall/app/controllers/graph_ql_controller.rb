@@ -15,3 +15,4 @@ class GraphQlController < ApplicationController
     render transit: mutation.result
   end
 end
+

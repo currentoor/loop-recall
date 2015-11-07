@@ -91,6 +91,58 @@
                                    "delete")})
    (mui/list-divider)))
 
+(defcs simple-header < (rum/local false) [state db card-id remote-id question answer]
+  (let [this            (:rum/react-component state)
+        show-card-menu? (:rum/local state)]
+    [:div
+     [:div.row
+      [:div.col-xs-10]
+      [:div.col-xs-2.right
+       (mui/icon-button {:iconClassName "material-icons"
+                         :onClick       #(swap! show-card-menu? not)}
+                        "more_horiz")]]
+
+     (if @show-card-menu?
+       [:div.row
+        [:div.col-xs-12
+         (card-menu-options :on-edit   #(.show (.. this -refs -editModal))
+                            :on-delete #(.show (.. this -refs -deleteModal)))]])
+
+     (mui/dialog {:title                  "Edit"
+                  :actions                [{:text "cancel"}
+                                           {:text       "submit"
+                                            :onTouchTap #(and
+                                                          (store/update-card
+                                                           card-id
+                                                           :question (:question @dyn/macro-state)
+                                                           :answer (:answer @dyn/macro-state)
+                                                           :remote-id remote-id)
+                                                          (.dismiss (.. this -refs -editModal)))}]
+                  :autoDetectWindowHeight true
+                  :modal                  true
+                  :autoScrollBodyContent  true
+                  :ref                    "editModal"}
+                 [:div {:style {:min-height "500px"}}
+                  (dyn/q&a (store/unescape question) (store/unescape answer))])
+
+     (mui/dialog {:title   "Delete"
+                  :actions [{:text "cancel"}
+                            {:text       "submit"
+                             :onTouchTap #(and (store/delete-card card-id remote-id)
+                                               (.dismiss (.. this -refs -deleteModal)))}]
+                  :ref     "deleteModal"}
+                 "Are you sure you want to delete this card?")]))
+
+(defc simple-card [db {:strs [id remote-id question answer] :as data}]
+  (mui/card
+   (simple-header db id remote-id question answer)
+   [:div
+    (mui/card-text
+     [:div {:dangerouslySetInnerHTML {:__html (markdown->html (store/unescape question))}}])]
+   [:div
+    (mui/card-text
+     [:div {:dangerouslySetInnerHTML {:__html (markdown->html (store/unescape answer))}}])]))
+
 (defcs study-header < (rum/local false) [state db title subtitle card-id remote-id question answer]
   (let [this            (:rum/react-component state)
         show-card-menu? (:rum/local state)]

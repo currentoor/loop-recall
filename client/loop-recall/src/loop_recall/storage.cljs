@@ -105,13 +105,15 @@
 
 ;; Ghetto encoding because graph-ql is defined by strings.
 (defn escape [s]
-  (-> (clojure.string/replace s #"\\\\\\\"" "__999__")
+  (-> s
+      (clojure.string/replace #"\\\\\\\"" "__999__")
       (clojure.string/replace #"\\\\\"" "__888__")
       (clojure.string/replace #"\\\"" "__777__")
       (clojure.string/replace #"\"" "__666__")))
 
 (defn unescape [s]
-  (-> (clojure.string/replace s #"__999__" "\\\\\\\"" )
+  (-> s
+      (clojure.string/replace #"__999__" "\\\\\\\"" )
       (clojure.string/replace #"__888__" "\\\\\"" )
       (clojure.string/replace #"__777__" "\\\"" )
       (clojure.string/replace #"__666__" "\"" )))
@@ -167,6 +169,10 @@
   (mutate (str "mutation bar { deleteCard(id: \""
                remote-id
                "\") {id} }")))
+
+(cond->> {:b 3}
+    true (merge {:a 2})
+    )
 
 ;; multi-method
 (defn- normalize-card [{:strs [id question answer deck] :as card}]

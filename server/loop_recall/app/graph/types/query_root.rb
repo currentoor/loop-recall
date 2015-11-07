@@ -24,6 +24,14 @@ QueryRoot = GraphQL::ObjectType.define do
     }
   end
 
+  field :cardsFromDeck do
+    type types[CardType]
+    argument :deck_id, !types.ID
+    resolve -> (object, arguments, context) {
+      Card.where(arguments["deck_id"])
+    }
+  end
+
   field :decks do
     type types[DeckType]
     resolve -> (object, arguments, context) {
