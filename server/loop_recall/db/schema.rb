@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20151022045221) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "cards", force: :cascade do |t|
     t.text     "question"
     t.text     "answer"
@@ -21,7 +24,7 @@ ActiveRecord::Schema.define(version: 20151022045221) do
     t.integer  "deck_id"
   end
 
-  add_index "cards", ["deck_id"], name: "index_cards_on_deck_id"
+  add_index "cards", ["deck_id"], name: "index_cards_on_deck_id", using: :btree
 
   create_table "decks", force: :cascade do |t|
     t.string   "name"
@@ -40,8 +43,8 @@ ActiveRecord::Schema.define(version: 20151022045221) do
     t.integer  "repetition"
   end
 
-  add_index "user_cards", ["card_id"], name: "index_user_cards_on_card_id"
-  add_index "user_cards", ["user_id"], name: "index_user_cards_on_user_id"
+  add_index "user_cards", ["card_id"], name: "index_user_cards_on_card_id", using: :btree
+  add_index "user_cards", ["user_id"], name: "index_user_cards_on_user_id", using: :btree
 
   create_table "user_decks", force: :cascade do |t|
     t.integer  "user_id"
@@ -50,12 +53,17 @@ ActiveRecord::Schema.define(version: 20151022045221) do
     t.datetime "updated_at", null: false
   end
 
-  add_index "user_decks", ["deck_id"], name: "index_user_decks_on_deck_id"
-  add_index "user_decks", ["user_id"], name: "index_user_decks_on_user_id"
+  add_index "user_decks", ["deck_id"], name: "index_user_decks_on_deck_id", using: :btree
+  add_index "user_decks", ["user_id"], name: "index_user_decks_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "cards", "decks"
+  add_foreign_key "user_cards", "cards"
+  add_foreign_key "user_cards", "users"
+  add_foreign_key "user_decks", "decks"
+  add_foreign_key "user_decks", "users"
 end
