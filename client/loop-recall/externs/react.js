@@ -11,6 +11,9 @@
 var React = {};
 
 var window = {};
+
+window.apiRoot = {};
+
 window.MaterialUI = {};
 window.MaterialUI.Styles = {};
 window.MaterialUI.Styles.Colors = {};

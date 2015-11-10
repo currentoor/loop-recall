@@ -28,13 +28,14 @@
                           (if @expanded? "expand_less" "expand_more"))]]
        (if @expanded?
          (query
-          (str "query getDeck { cardsFromDeck(deck_id: " deck-id
-               ") { deck_id, question, answer }}")
+          (str "query getDeck { cardsFromDeck(deck_id: " deck-id ") { deck_id, question, answer }}")
           (fn [{cards "cardsFromDeck"}]
+            (inspect cards)
             [:div
              (for [c cards] (card db c))]))))]]))
 
 (defc page [db]
   [:div.page
-   (deck db 2 "Clojure")
-   ])
+   (for [{:keys [remote-id name]} (store/all-decks)]
+     (deck db remote-id name))])
+

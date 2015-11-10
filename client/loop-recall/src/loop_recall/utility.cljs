@@ -15,14 +15,14 @@
       (.start @timeout interval))))
 
 (defn fetch [query cb]
-  (GET "http://localhost:3000/graph_ql/query"
+  (GET (str js/window.apiRoot "graph_ql/query")
       {:params          {:query (js/encodeURIComponent query)}
        :response-format :transit
        :handler         cb}))
 
 (def ^:private query-mixin
   {:did-mount (fn [{[query] :rum/args :as state}]
-                (GET "http://localhost:3000/graph_ql/query"
+                (GET (str js/window.apiRoot "graph_ql/query")
                     {:params          {:query (js/encodeURIComponent query)}
                      :response-format :transit
                      :handler         (fn [resp]

@@ -97,7 +97,7 @@
                  :due-date  dd})))))
 
 (defn mutate [graph-ql & {cb :cb}]
-  (POST "http://localhost:3000/graph_ql/mutation"
+  (POST (str js/window.apiRoot "graph_ql/mutation")
       {:params          {:mutation graph-ql}
        :response-format :transit
        :handler         (if cb
@@ -155,6 +155,13 @@
                  "\", id: \"" remote-id
                  "\") {id} }"))))
 
+(defn simple-update-card [& {:keys [remote-id question answer cb] :as card}]
+  (when (and question answer remote-id)
+    (mutate (str "mutation bar { updateCard(question: \"" (escape question)
+                 "\", answer: \"" (escape answer)
+                 "\", id: \"" remote-id
+                 "\") {id} }"))))
+
 (defn answer-card [id & {:keys [remote-id response]}]
   (when response
     (d/transact! conn [[:db/add id :card/due? false]])
@@ -169,10 +176,6 @@
   (mutate (str "mutation bar { deleteCard(id: \""
                remote-id
                "\") {id} }")))
-
-(cond->> {:b 3}
-    true (merge {:a 2})
-    )
 
 ;; multi-method
 (defn- normalize-card [{:strs [id question answer deck] :as card}]
