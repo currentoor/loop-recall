@@ -91,7 +91,7 @@
                                    "delete")})
    (mui/list-divider)))
 
-(defcs simple-header < (rum/local false) [state db card-id remote-id question answer]
+(defcs simple-header < (rum/local false) [state db remote-id question answer atm]
   (let [this            (:rum/react-component state)
         show-card-menu? (:rum/local state)]
     [:div
@@ -112,8 +112,8 @@
                   :actions                [{:text "cancel"}
                                            {:text       "submit"
                                             :onTouchTap #(and
-                                                          (store/update-card
-                                                           card-id
+                                                          (store/simple-update-card
+                                                           atm
                                                            :question (:question @dyn/macro-state)
                                                            :answer (:answer @dyn/macro-state)
                                                            :remote-id remote-id)
@@ -128,14 +128,14 @@
      (mui/dialog {:title   "Delete"
                   :actions [{:text "cancel"}
                             {:text       "submit"
-                             :onTouchTap #(and (store/delete-card card-id remote-id)
+                             :onTouchTap #(and (store/simple-delete-card atm remote-id)
                                                (.dismiss (.. this -refs -deleteModal)))}]
                   :ref     "deleteModal"}
                  "Are you sure you want to delete this card?")]))
 
-(defc simple-card [db {:strs [id remote-id question answer] :as data}]
+(defc simple-card [db {:strs [id question answer] :as data} atm]
   (mui/card
-   (simple-header db id remote-id question answer)
+   (simple-header db id question answer atm)
    [:div
     (mui/card-text
      [:div {:dangerouslySetInnerHTML {:__html (markdown->html (store/unescape question))}}])]
@@ -143,7 +143,7 @@
     (mui/card-text
      [:div {:dangerouslySetInnerHTML {:__html (markdown->html (store/unescape answer))}}])]))
 
-(defcs study-header < (rum/local false) [state db title subtitle card-id remote-id question answer]
+(defcs study-header < (rum/local false) [state db title subtitle card-id remote-id question answer atm]
   (let [this            (:rum/react-component state)
         show-card-menu? (:rum/local state)]
     [:div

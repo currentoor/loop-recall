@@ -42,5 +42,5 @@
        (mui/circular-progress {:size 0.5})
        (mui/circular-progress {:size 0.5})
        (mui/circular-progress {:size 0.5})]
-      (child data))))
+      (child data (:rum/local state)))))
 

@@ -9,10 +9,10 @@
    [loop-recall.theme :refer [markdown->html]]
    [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
-(defc card [db {:keys [question answer] :as data}]
+(defc card [db {:keys [question answer] :as data} atm]
   [:div.row
    [:div.col-xs-10.col-xs-offset-1
-    (card/simple-card db data)]])
+    (card/simple-card db data atm)]])
 
 (defcs deck < (rum/local false) [state db deck-id name]
   (let [expanded? (:rum/local state)]
@@ -28,11 +28,10 @@
                           (if @expanded? "expand_less" "expand_more"))]]
        (if @expanded?
          (query
-          (str "query getDeck { cardsFromDeck(deck_id: " deck-id ") { deck_id, question, answer }}")
-          (fn [{cards "cardsFromDeck"}]
-            (inspect cards)
+          (str "query getDeck { cardsFromDeck(deck_id: " deck-id ") { id, deck_id, question, answer }}")
+          (fn [{cards "cardsFromDeck"} atm]
             [:div
-             (for [c cards] (card db c))]))))]]))
+             (for [c cards] (card db c atm))]))))]]))
 
 (defc page [db]
   [:div.page

@@ -155,8 +155,21 @@
                  "\", id: \"" remote-id
                  "\") {id} }"))))
 
-(defn simple-update-card [& {:keys [remote-id question answer cb] :as card}]
+(defn simple-update-card [atm & {:keys [remote-id question answer cb] :as card}]
+  ;; Let the hacking commence!
   (when (and question answer remote-id)
+    (swap! atm
+           (fn [prev]
+             (let [prev-cards (get-in prev [:data "cardsFromDeck"])
+                   new-cards  (mapv
+                               (fn [c]
+                                 (if (= (c "id") remote-id)
+                                   {"id"       remote-id
+                                    "question" question
+                                    "answer"   answer}
+                                   c))
+                               prev-cards)]
+               (assoc-in prev [:data "cardsFromDeck"] new-cards))))
     (mutate (str "mutation bar { updateCard(question: \"" (escape question)
                  "\", answer: \"" (escape answer)
                  "\", id: \"" remote-id
@@ -173,6 +186,17 @@
 
 (defn delete-card [id remote-id]
   (d/transact! conn [[:db.fn/retractEntity id]])
+  (mutate (str "mutation bar { deleteCard(id: \""
+               remote-id
+               "\") {id} }")))
+
+(defn simple-delete-card [atm remote-id]
+  (swap! atm
+         (fn [prev]
+           (let [prev-cards (get-in prev [:data "cardsFromDeck"])
+                 new-cards  (filter (fn [c] (not (= (c "id") remote-id)))
+                             prev-cards)]
+             (assoc-in prev [:data "cardsFromDeck"] new-cards))))
   (mutate (str "mutation bar { deleteCard(id: \""
                remote-id
                "\") {id} }")))
