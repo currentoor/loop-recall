@@ -99,6 +99,7 @@
 (defn mutate [graph-ql & {cb :cb}]
   (POST (str js/window.apiRoot "graph_ql/mutation")
       {:params          {:mutation graph-ql}
+       :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
        :response-format :transit
        :handler         (if cb
                           #(cb %))}))

@@ -19,6 +19,9 @@
   (set-system-attrs! :page :all-decks))
 (defroute "/twitter_creation" []
   (set-system-attrs! :page :twitter-creation))
+(defroute "/logout" []
+  (set-system-attrs! :id-token nil)
+  (.removeItem js/localStorage "userToken"))
 
 ;; History
 (defn hook-browser-navigation! []

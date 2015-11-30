@@ -13,7 +13,7 @@
                          { :route "#/new" :text "Create New" }
                          { :route "#/all_decks" :text "All Decks" }
                          { :type js/window.MaterialUI.MenuItem.Types.SUBHEADER :text "Account" }
-                         { :route "#/settings" :text "Settings" }
+                         { :route "#/logout" :text "Logout" }
                          ]]
     [:div
      (mui/app-bar

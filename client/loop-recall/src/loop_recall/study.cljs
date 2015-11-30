@@ -17,10 +17,10 @@
   (mod idx total))
 
 (defcs page [state db]
-  (let [cards                     (vec (store/due-cards))
-        index*                    (or (system-attr db :study/card-index) 0)
-        total                     (count cards)
-        index                     (moded index* total)]
+  (let [cards  (vec (store/due-cards))
+        index* (or (system-attr db :study/card-index) 0)
+        total  (count cards)
+        index  (moded index* total)]
     [:div.page
      (if (seq cards)
        (let [{:keys [deck question answer id deck-name remote-id]} (cards index)]
@@ -30,4 +30,3 @@
                           :prev #(set-system-attrs! :study/card-index (previous-index index total))
                           :next #(set-system-attrs! :study/card-index (next-index index total))))
        [:h2 "Congrats! You are finished studying for today."])]))
-

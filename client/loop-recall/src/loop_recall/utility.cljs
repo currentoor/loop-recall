@@ -17,6 +17,7 @@
 (defn fetch [query cb]
   (GET (str js/window.apiRoot "graph_ql/query")
       {:params          {:query (js/encodeURIComponent query)}
+       :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
        :response-format :transit
        :handler         cb}))
 
@@ -24,6 +25,7 @@
   {:did-mount (fn [{[query] :rum/args :as state}]
                 (GET (str js/window.apiRoot "graph_ql/query")
                     {:params          {:query (js/encodeURIComponent query)}
+                     :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
                      :response-format :transit
                      :handler         (fn [resp]
                                         (swap! (:rum/local state)

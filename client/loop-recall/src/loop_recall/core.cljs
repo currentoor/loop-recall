@@ -23,9 +23,16 @@
            :width "100%" :height "100%"
            :alt "Spaced Repetition"}]]])
 
-(defc app < rum/reactive color-theme [conn]
-  (let [db   (rum/react conn)
-        page (system-attr db :page)]
+(defcs home <
+  {:did-mount (fn [{[lock] :rum/args :as state}]
+                (.show lock)
+                state)}
+  [state lock]
+  [:div.login-box
+   [:button {:on-click #(.show lock)} "signin"]])
+
+(defcs logged-in [state db lock conn]
+  (let [page (system-attr db :page)]
     [:div
      (navbar)
 
@@ -35,7 +42,44 @@
        :all-decks (all-decks/page db)
        (home-page db))]))
 
-(rum/mount (app conn) (js/document.getElementById "app"))
+(defn get-id-token [lock]
+  (let [prev-id-token (js/localStorage.getItem "userToken")
+        auth-hash     (.parseHash lock js/window.location.hash)]
+    (if (and (not prev-id-token) auth-hash)
+      (do
+        ;; Set localStorage if auth-hash has a token.
+        (if-let [id-token (.-id_token auth-hash)]
+          (.setItem js/localStorage "userToken" id-token))
+        (if (.-error auth-hash)
+          (js/console.log "Error signing in" auth-hash))))
+    (if prev-id-token
+      prev-id-token
+      (.getItem js/localStorage "userToken"))))
+
+(def auth0
+  {:will-mount (fn [state]
+                 (let [lock (js/Auth0Lock. "HpjUc70r2FEMpZl8Mj4ziGHpDIG0AeU5", "looprecall.auth0.com")]
+                   (set-system-attrs! :lock lock :id-token (get-id-token lock))
+                   state))
+   :did-mount  (fn [state]
+                 (let [[lock id-token] (system-attr @conn :lock :id-token)]
+                   (.getProfile
+                   lock id-token
+                   (fn [err profile]
+                     (if err
+                       (js/console.log "Error loading profile", err))
+                     (set-system-attrs! :profile profile))))
+                 state)})
+
+(defcs app < rum/reactive color-theme auth0
+  [state]
+  (let [db              (rum/react conn)
+        [lock id-token] (system-attr @conn :lock :id-token)]
+    (if id-token
+      (logged-in db lock conn)
+      (home lock))))
+
+(rum/mount (app) (js/document.getElementById "app"))
 
 (defonce history
   (hook-browser-navigation!))
