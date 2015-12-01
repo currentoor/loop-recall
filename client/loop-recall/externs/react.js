@@ -14,6 +14,13 @@ var window = {};
 
 window.apiRoot = {};
 
+window.Auth0Lock = {};
+window.Auth0Lock.id_token = {};
+window.Auth0Lock.error = {};
+Object.parseHash = function() {};
+Object.getProfile = function() {};
+Object.show = function() {};
+
 window.MaterialUI = {};
 window.MaterialUI.Styles = {};
 window.MaterialUI.Styles.Colors = {};
