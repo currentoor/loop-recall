@@ -46,3 +46,10 @@
        (mui/circular-progress {:size 0.5})]
       (child data (:rum/local state)))))
 
+(defn fetch-due-cards []
+  (fetch "query getDueCards { dueCards {id, question, answer, deck{id, name}} }"
+             store/insert-due-cards))
+
+(defn fetch-decks []
+  (fetch "query getDecks { decks {id, name} }"
+              store/insert-decks))

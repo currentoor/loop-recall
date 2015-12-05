@@ -4,7 +4,7 @@
   (:require
    [loop-recall.cards.dynamic :as dyn]
    [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
-   [loop-recall.utility :refer [query]]
+   [loop-recall.utility :refer [query] :as util]
    [loop-recall.theme :refer [markdown->html]]
    [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 

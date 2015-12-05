@@ -17,7 +17,7 @@
 (defc home-page [db]
   [:div.row
    [:div.col-xs-10.col-xs-offset-1
-    [:h2 "Welcome to LoopRecall!"]]
+    [:h2 "Spaced Repetition Meets Machine Learning"]]
    [:div.col-xs-12.col-sm-10.col-sm-offset-1
     [:img {:src "http://loop-recall-assets.s3-us-west-1.amazonaws.com/images/visual.svg"
            :width "100%" :height "100%"
@@ -51,7 +51,9 @@
         (if-let [id-token (.-id_token auth-hash)]
           (.setItem js/localStorage "userToken" id-token))
         (if (.-error auth-hash)
-          (js/console.log "Error signing in" auth-hash))))
+          (do
+            (.removeItem js/localStorage "userToken")
+            (js/console.log "Error signing in" auth-hash)))))
     (if prev-id-token
       prev-id-token
       (.getItem js/localStorage "userToken"))))
@@ -85,10 +87,8 @@
   (hook-browser-navigation!))
 
 ;;; Load initial data.
-(defonce due-cards-fetch (util/fetch "query getDueCards { dueCards {id, question, answer, deck{id, name}} }"
-                                     store/insert-due-cards))
-(defonce decks-fetch (util/fetch "query getDecks { decks {id, name} }"
-                                 store/insert-decks))
+(defonce due-cards-fetch (util/fetch-due-cards))
+(defonce decks-fetch (util/fetch-decks))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on

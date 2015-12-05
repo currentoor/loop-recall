@@ -97,12 +97,13 @@
                  :due-date  dd})))))
 
 (defn mutate [graph-ql & {cb :cb}]
-  (POST (str js/window.apiRoot "graph_ql/mutation")
-      {:params          {:mutation graph-ql}
-       :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
-       :response-format :transit
-       :handler         (if cb
-                          #(cb %))}))
+  (if (.getItem js/localStorage "userToken")
+      (POST (str js/window.apiRoot "graph_ql/mutation")
+       {:params          {:mutation graph-ql}
+        :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
+        :response-format :transit
+        :handler         (if cb
+                           #(cb %))})))
 
 ;; Ghetto encoding because graph-ql is defined by strings.
 (defn escape [s]
@@ -123,7 +124,6 @@
   (mutate (str "mutation bar { createCard(deck_id: " remote-deck-id
                ",question: \"" (escape question)
                "\", answer: \"" (escape answer)
-               "\", user_id: \"" 1
                "\") {id} }"
                )
           :cb #(let [remote-id (get-in % ["data" "createCard" "id"])]
@@ -136,9 +136,7 @@
                                     :card/deck-name      deck-name}]))))
 
 (defn create-deck [name]
-  (mutate (str "mutation bar { createDeck(name: \"" name
-               "\" user_id: \"" 1
-               "\") {id} }"
+  (mutate (str "mutation bar { createDeck(name: \"" name "\") {id} }"
                )
           :cb #(let [_ (inspect %)
                      remote-id (inspect (get-in % ["data" "createDeck" "id"]))]
@@ -174,20 +172,26 @@
     (mutate (str "mutation bar { updateCard(question: \"" (escape question)
                  "\", answer: \"" (escape answer)
                  "\", id: \"" remote-id
-                 "\") {id} }"))))
+                 "\") {id} }")
+            :cb cb)))
 
 (defn answer-card [id & {:keys [remote-id response]}]
   (when response
     (d/transact! conn [[:db/add id :card/due? false]])
     (mutate (str "mutation bar { answerCard(card_id: \""
                  remote-id
-                 "\", user_id: \"" 1
                  "\", response: " response
                  ") {due_date_str} }"))))
 
 (defn delete-card [id remote-id]
   (d/transact! conn [[:db.fn/retractEntity id]])
   (mutate (str "mutation bar { deleteCard(id: \""
+               remote-id
+               "\") {id} }")))
+
+(defn delete-deck [local-id remote-id]
+  (d/transact! conn [[:db.fn/retractEntity local-id]])
+  (mutate (str "mutation bar { deleteDeck(id: \""
                remote-id
                "\") {id} }")))
 
