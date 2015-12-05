@@ -87,8 +87,8 @@
   (hook-browser-navigation!))
 
 ;;; Load initial data.
-(defonce due-cards-fetch (util/fetch-due-cards))
-(defonce decks-fetch (util/fetch-decks))
+(defonce due-cards-fetch (util/fetch-due-cards store/insert-due-cards))
+(defonce decks-fetch (util/fetch-decks store/insert-decks))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on

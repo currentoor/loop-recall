@@ -3,7 +3,6 @@
                    [loop-recall.material :as mui])
   (:import [goog Delay])
   (:require [ajax.core :refer [GET POST]]
-            [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
             [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (defn debounce [f interval]
@@ -46,10 +45,10 @@
        (mui/circular-progress {:size 0.5})]
       (child data (:rum/local state)))))
 
-(defn fetch-due-cards []
+(defn fetch-due-cards [local-insert]
   (fetch "query getDueCards { dueCards {id, question, answer, deck{id, name}} }"
-             store/insert-due-cards))
+             local-insert))
 
-(defn fetch-decks []
+(defn fetch-decks [local-insert]
   (fetch "query getDecks { decks {id, name} }"
-              store/insert-decks))
+              local-insert))

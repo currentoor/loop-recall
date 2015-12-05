@@ -2,6 +2,7 @@
   (:require-macros [loop-recall.macros :refer [inspect]])
   (:require
    [ajax.core :refer [GET POST]]
+   [loop-recall.utility :refer [query] :as util]
    [datascript.core :as d]))
 
 (def schema {:card/question  {}
@@ -96,14 +97,17 @@
                  :remote-id ri
                  :due-date  dd})))))
 
+(declare insert-due-cards)
+(declare insert-decks)
+
 (defn mutate [graph-ql & {cb :cb}]
   (if (.getItem js/localStorage "userToken")
       (POST (str js/window.apiRoot "graph_ql/mutation")
        {:params          {:mutation graph-ql}
         :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
         :response-format :transit
-        :handler         (if cb
-                           #(cb %))})))
+        :handler         #(and (util/fetch-due-cards insert-due-cards)
+                               (util/fetch-decks insert-decks))})))
 
 ;; Ghetto encoding because graph-ql is defined by strings.
 (defn escape [s]
@@ -225,12 +229,20 @@
      :deck/name      name
      :deck/remote-id id}))
 
+(defn- remove-entities-locally [ids]
+  (mapv (fn [id] (d/transact! conn [[:db.fn/retractEntity id]]))
+        ids))
+
 (defn insert-due-cards [data]
-  (let [cards  (get-in data ["data" "dueCards"])
-        ncards (mapv normalize-card cards)]
+  (let [old-card-ids  (map :id (due-cards))
+        cards         (get-in data ["data" "dueCards"])
+        ncards        (mapv normalize-card cards)]
+    (remove-entities-locally old-card-ids)
     (d/transact! conn ncards)))
 
 (defn insert-decks [data]
-  (let [decks  (get-in data ["data" "decks"])
-        ndecks (mapv normalize-deck decks)]
+  (let [old-deck-ids (map :id (all-decks))
+        decks        (get-in data ["data" "decks"])
+        ndecks       (mapv normalize-deck decks)]
+    (remove-entities-locally old-deck-ids)
     (d/transact! conn ndecks)))
