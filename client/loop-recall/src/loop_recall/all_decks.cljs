@@ -23,11 +23,11 @@
        [:div.row
         [:div.col-xs-9
          (mui/card-title {:title name})]
-        [:div.col-xs-1.right
+        [:div.col-xs-1
          (mui/icon-button {:iconClassName "material-icons"
                            :onClick       #(swap! expanded? not)}
                           (if @expanded? "expand_less" "expand_more"))]
-        [:div.col-xs-1.right
+        [:div.col-xs-1
          (mui/icon-button {:style         {:right "-12px"}
                            :onClick       #(.show (.. this -refs -deleteModal))
                            :iconClassName "material-icons"}
