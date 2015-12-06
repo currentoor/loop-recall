@@ -45,24 +45,26 @@
       first))
 
 (defn due-cards []
-  (let [db-result (d/q '[:find ?c ?question ?answer ?deck-id ?deckname ?remote-id
+  (let [db-result (d/q '[:find ?c ?question ?answer ?deck-id ?deckname ?remote-id ?c-intv
                          :where
                          [?c :card/question ?question]
                          [?c :card/answer ?answer]
                          [?c :card/due? true]
+                         [?c :card/correct-interval ?c-intv]
                          [?c :card/remote-deck-id ?deck-id]
                          [?c :card/remote-id ?remote-id]
                          [?c :card/deck-name ?deckname]
                          ]
                        @conn)]
     ;; TODO clean this for sorted up?
-    (->> (for [[id q a deck-id deck-name remote-id] db-result]
-           {:id        id
-            :question  q
-            :answer    a
-            :deck-id   deck-id
-            :remote-id remote-id
-            :deck-name deck-name})
+    (->> (for [[id q a deck-id deck-name remote-id ?c-intv] db-result]
+           {:id               id
+            :question         q
+            :answer           a
+            :correct-interval ?c-intv
+            :deck-id          deck-id
+            :remote-id        remote-id
+            :deck-name        deck-name})
          (sort-by :id))))
 
 (defn all-decks []
@@ -100,13 +102,14 @@
 (declare insert-due-cards)
 (declare insert-decks)
 
-(defn mutate [graph-ql & {cb :cb}]
+(defn mutate [graph-ql & {:keys [refresh?] :or {refresh? true}}]
   (if (.getItem js/localStorage "userToken")
       (POST (str js/window.apiRoot "graph_ql/mutation")
        {:params          {:mutation graph-ql}
         :headers         {"Authorization" (str "Bearer " (.getItem js/localStorage "userToken"))}
         :response-format :transit
-        :handler         #(and (util/fetch-due-cards insert-due-cards)
+        :handler         #(and refresh?
+                               (util/fetch-due-cards insert-due-cards)
                                (util/fetch-decks insert-decks))})))
 
 ;; Ghetto encoding because graph-ql is defined by strings.
@@ -156,7 +159,8 @@
     (mutate (str "mutation bar { updateCard(question: \"" (escape question)
                  "\", answer: \"" (escape answer)
                  "\", id: \"" remote-id
-                 "\") {id} }"))))
+                 "\") {id} }")
+            :refresh? false)))
 
 (defn simple-update-card [atm & {:keys [remote-id question answer cb] :as card}]
   ;; Let the hacking commence!
@@ -185,13 +189,15 @@
     (mutate (str "mutation bar { answerCard(card_id: \""
                  remote-id
                  "\", response: " response
-                 ") {due_date_str} }"))))
+                 ") {due_date_str} }")
+            :refresh? false)))
 
 (defn delete-card [id remote-id]
   (d/transact! conn [[:db.fn/retractEntity id]])
   (mutate (str "mutation bar { deleteCard(id: \""
                remote-id
-               "\") {id} }")))
+               "\") {id} }")
+          :refresh? false))
 
 (defn delete-deck [local-id remote-id]
   (d/transact! conn [[:db.fn/retractEntity local-id]])
@@ -211,17 +217,18 @@
                "\") {id} }")))
 
 ;; multi-method
-(defn- normalize-card [{:strs [id question answer deck] :as card}]
+(defn- normalize-card [{:strs [id correct_interval question answer deck] :as card}]
   (let [tempid    (-> id int (* -1))
         deck-id   (deck "id")
         deck-name (deck "name")]
-    {:db/id               tempid
-     :card/remote-id      id
-     :card/question       (unescape question)
-     :card/answer         (unescape answer)
-     :card/due?           true
-     :card/remote-deck-id deck-id
-     :card/deck-name      deck-name}))
+    {:db/id                 tempid
+     :card/remote-id        id
+     :card/question         (unescape question)
+     :card/answer           (unescape answer)
+     :card/due?             true
+     :card/correct-interval correct_interval
+     :card/remote-deck-id   deck-id
+     :card/deck-name        deck-name}))
 
 (defn- normalize-deck [{:strs [id name cards]}]
   (let [tempid (-> id int (* -1))]

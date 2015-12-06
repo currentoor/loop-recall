@@ -46,7 +46,7 @@
       (child data (:rum/local state)))))
 
 (defn fetch-due-cards [local-insert]
-  (fetch "query getDueCards { dueCards {id, question, answer, deck{id, name}} }"
+  (fetch "query getDueCards { dueCards {id, question, answer, correct_interval, deck{id, name}} }"
              local-insert))
 
 (defn fetch-decks [local-insert]

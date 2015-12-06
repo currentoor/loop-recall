@@ -190,7 +190,7 @@
   (let [previous (system-attr @conn :show-answer?)]
     (set-system-attrs! :show-answer? (not previous))))
 
-(defcs study-card [state db question answer card-id remote-id deckname subtitle & {:keys [prev next]}]
+(defcs study-card [state db question answer c-intv card-id remote-id deckname subtitle & {:keys [prev next]}]
   [:div.row
    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
     (mui/card
@@ -234,7 +234,7 @@
                                               card-id
                                               :remote-id remote-id
                                               :response  "5"))
-                              :secondary true :label "Correct"}))
+                              :secondary true :label (str "Correct (" c-intv " days)")}))
          (mui/card-actions
           (mui/flat-button {:onClick toggle-answer :label "Show Answer"})))]
 
