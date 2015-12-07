@@ -77,7 +77,7 @@
            {:id        id
             :name      deck-name
             :remote-id remote-id})
-         (sort-by :id))))
+         (sort-by :name))))
 
 (defn cards [deck-id]
   (let [db-result (d/q '[:find ?d ?c ?question ?answer ?learn-seq ?due-date ?remote-id

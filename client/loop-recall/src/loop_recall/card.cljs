@@ -11,7 +11,6 @@
 (defc new-card [db decks]
   [:div.row
    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-10.col-md-offset-1
-    (mui/card
      (mui/card-title {:title "New Card"})
      [:div.row
       [:div.col-xs-3.col-xs-offset-1
@@ -42,7 +41,7 @@
                           :question (:question @dyn/macro-state)
                           :answer (:answer @dyn/macro-state))
                         (dyn/reset-state!))
-         :label "Create"})]])]])
+         :label "Create"})]]]])
 
 (defcc new-deck-input < rum/reactive [comp ref]
   (mui/text-field {:hintText          "Ex: Git Commands"
@@ -59,19 +58,18 @@
 (defc new-deck [db]
   [:div.row
    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-10.col-md-offset-1
-    (mui/card
-     (mui/card-title {:title "New Deck"})
-     [:div.row
-      [:div.col-xs-12.col-sm-10.col-sm-offset-1
-       (new-deck-input
-        (rum/cursor deck-name [:text]))]]
-     [:div.row
-      [:div.col-xs-6.center.col-xs-offset-6
-       (mui/raised-button
-        {:secondary true
-         :onClick #(and (store/create-deck (:text @deck-name))
-                        (reset! deck-name {:text ""}))
-         :label "Create"})]])]])
+    (mui/card-title {:title "New Deck"})
+    [:div.row
+     [:div.col-xs-12.col-sm-10.col-sm-offset-1
+      (new-deck-input
+       (rum/cursor deck-name [:text]))]]
+    [:div.row
+     [:div.col-xs-6.center.col-xs-offset-6
+      (mui/raised-button
+       {:secondary true
+        :onClick #(and (store/create-deck (:text @deck-name))
+                       (reset! deck-name {:text ""}))
+        :label "Create"})]]]])
 
 (defn card-menu-options [& {:keys [on-edit on-delete]}]
   (mui/list

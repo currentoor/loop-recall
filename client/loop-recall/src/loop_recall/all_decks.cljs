@@ -29,7 +29,8 @@
                           (if @expanded? "expand_less" "expand_more"))]
         [:div.col-xs-1
          (mui/icon-button {:style         {:right "-12px"}
-                           :onClick       #(.show (.. this -refs -deleteModal))
+                           :onClick       #(or (swap! expanded? not)
+                                                (.show (.. this -refs -deleteModal)))
                            :iconClassName "material-icons"}
                           "delete")]]
        (mui/dialog {:title   "Delete"
