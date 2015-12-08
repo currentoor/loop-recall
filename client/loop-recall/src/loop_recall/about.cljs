@@ -7,7 +7,7 @@
 (defc page []
   [:div.page
    [:div.row
-    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2
+    [:div.col-xs-12.col-sm-10.col-sm-offset-1
      (mui/card
       (mui/card-title {:title "Spaced Repetition Meets Machine Learning"})
       [:div.row

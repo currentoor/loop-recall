@@ -213,28 +213,30 @@
         "arrow_back")]
 
       [:div.col-xs-8.center
-       (if (system-attr db :show-answer?)
-         (mui/card-actions
-          (mui/raised-button {:onClick #(and (toggle-answer)
-                                             (store/answer-card
-                                              card-id
-                                              :remote-id remote-id
-                                              :response  "0"))
-                              :backgroundColor "#820000" :primary true :label "Wrong"})
-          (mui/raised-button {:onClick #(and (toggle-answer)
-                                             (store/answer-card
-                                              card-id
-                                              :remote-id remote-id
-                                              :response  "3"))
-                              :label "Almost"})
-          (mui/raised-button {:onClick #(and (toggle-answer)
-                                             (store/answer-card
-                                              card-id
-                                              :remote-id remote-id
-                                              :response  "5"))
-                              :secondary true :label (str "Correct (" c-intv " days)")}))
-         (mui/card-actions
-          (mui/flat-button {:onClick toggle-answer :label "Show Answer"})))]
+       [:div.row
+        [:div.col-xs-12.center
+         (if (system-attr db :show-answer?)
+           (mui/card-actions
+            (mui/raised-button {:onClick #(and (toggle-answer)
+                                               (store/answer-card
+                                                card-id
+                                                :remote-id remote-id
+                                                :response  "0"))
+                                :backgroundColor "#820000" :primary true :label "Wrong"})
+            (mui/raised-button {:onClick #(and (toggle-answer)
+                                               (store/answer-card
+                                                card-id
+                                                :remote-id remote-id
+                                                :response  "3"))
+                                :label "Almost"})
+            (mui/raised-button {:onClick #(and (toggle-answer)
+                                               (store/answer-card
+                                                card-id
+                                                :remote-id remote-id
+                                                :response  "5"))
+                                :secondary true :label (str "Correct (" c-intv " days)")}))
+           (mui/card-actions
+            (mui/flat-button {:onClick toggle-answer :label "Show Answer"})))]]]
 
       [:div.col-xs-2.center
        (mui/icon-button
