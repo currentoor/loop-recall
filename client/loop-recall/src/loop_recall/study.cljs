@@ -34,4 +34,8 @@
                             (str (inc index) " of " total)
                             :prev #(set-system-attrs! :study/card-index (previous-index index total))
                             :next #(set-system-attrs! :study/card-index (next-index index total))))
-         [:h2 "Congrats! You are finished studying for today."]))]))
+
+         [:div.row
+          [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
+           (mui/card-title "Congrats! You are finished studying for today.")]]
+         ))]))
