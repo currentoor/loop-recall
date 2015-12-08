@@ -83,7 +83,9 @@
   (hook-browser-navigation!))
 
 ;;; Load initial data.
-(defonce due-cards-fetch (util/fetch-due-cards store/insert-due-cards))
+(defonce due-cards-fetch (util/fetch-due-cards #(do
+                                                  (store/insert-due-cards %)
+                                                  (set-system-attrs! :due-cards-loaded? true))))
 (defonce decks-fetch (util/fetch-decks store/insert-decks))
 
 (defn on-js-reload []

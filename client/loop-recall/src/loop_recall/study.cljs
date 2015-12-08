@@ -22,11 +22,16 @@
         total  (count cards)
         index  (moded index* total)]
     [:div.page
-     (if (seq cards)
-       (let [{:keys [deck question answer id deck-name remote-id correct-interval]} (cards index)]
-         (card/study-card db question answer correct-interval id remote-id
-                          deck-name
-                          (str (inc index) " of " total)
-                          :prev #(set-system-attrs! :study/card-index (previous-index index total))
-                          :next #(set-system-attrs! :study/card-index (next-index index total))))
-       [:h2 "Congrats! You are finished studying for today."])]))
+     (if-not (system-attr db :due-cards-loaded?)
+       [:div.center
+        (mui/circular-progress)
+        (mui/circular-progress)
+        (mui/circular-progress)]
+       (if (seq cards)
+         (let [{:keys [deck question answer id deck-name remote-id correct-interval]} (cards index)]
+           (card/study-card db question answer correct-interval id remote-id
+                            deck-name
+                            (str (inc index) " of " total)
+                            :prev #(set-system-attrs! :study/card-index (previous-index index total))
+                            :next #(set-system-attrs! :study/card-index (next-index index total))))
+         [:h2 "Congrats! You are finished studying for today."]))]))
