@@ -6,6 +6,7 @@
               [loop-recall.routes :refer [hook-browser-navigation!]]
               [loop-recall.new-stuff :as new-stuff]
               [loop-recall.all-decks :as all-decks]
+              [loop-recall.about :as about]
               [loop-recall.storage :as store :refer [conn set-system-attrs! system-attr]]
               [loop-recall.study :as study]
               [loop-recall.theme :refer [color-theme]]
@@ -13,37 +14,6 @@
               [rum.core :as rum :refer-macros [defc defcs defcc] :include-macros true]))
 
 (enable-console-print!)
-
-(defc home-page []
-  [:div.page
-   [:div.row
-    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2
-     (mui/card
-      (mui/card-title {:title "Spaced Repetition Meets Machine Learning"})
-      [:div.row
-       [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2
-        (mui/card-text
-         "LoopRecall is an app designed to make the learning process more efficient.
-          We use machine learning algorithms to implement custom intelligently spaced
-          repetition plans. Given a collection of knowledge you would like review and
-          retain,consider the diagram below."
-         [:ul
-          [:li "Create flash cards based on the collection of knowledge."]
-          [:li "Put the cards in the first box on the left."]
-          [:li "Review each card according to the label on the box."]
-          [:li "Based on your response move the card forwards or backwards based on arrows."]
-          [:li "Repeat."]]
-         "That is basically it, except the boxes are implemented in software and the labels
-          (i.e. gap between reviews) on the boxes are custom generated based on your learning
-          history.")
-        [:img {:src "http://loop-recall-assets.s3-us-west-1.amazonaws.com/images/visual.svg"
-               :width "100%" :height "100%"
-               :alt "Spaced Repetition"}]
-        (mui/card-text
-         "If you like this app and feel charitable, "
-         [:a {:href "https://www.khanacademy.org/donate" :target "_blank"} "here"]
-         " is a great cause that could use more funding.")
-        (mui/card-text "- Karan")]])]]])
 
 (defcs home <
   {:did-mount (fn [{[lock] :rum/args :as state}]
@@ -53,7 +23,7 @@
   [:div
    (logged-out-navbar #(.show lock))
    [:div.login-box]
-   (home-page)])
+   (about/page)])
 
 (defcs logged-in [state db lock conn]
   (let [page (system-attr db :page)]
@@ -62,14 +32,15 @@
 
      (case page
        :new       (new-stuff/page db)
-       :about     (home-page)
+       :about     (about/page)
        :all-decks (all-decks/page db)
        (study/page db))]))
 
 (defn get-id-token [lock]
   (let [prev-id-token (js/localStorage.getItem "userToken")
         auth-hash     (.parseHash lock js/window.location.hash)]
-    (if-not prev-id-token (set-system-attrs! :page :about)) ; Show about page only on login.
+    ;; Show about page by default only on login.
+    (if-not prev-id-token (set-system-attrs! :page :about))
     (if (and (not prev-id-token) auth-hash)
       (do
         ;; Set localStorage if auth-hash has a token.
