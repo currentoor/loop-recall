@@ -2,7 +2,7 @@
     (:require-macros [loop-recall.macros :refer [inspect]]
                      [cljs.core.async.macros :as asyncm :refer (go go-loop)]
                      [loop-recall.material :as mui])
-    (:require [loop-recall.navbar :refer [navbar]]
+    (:require [loop-recall.navbar :refer [navbar logged-out-navbar]]
               [loop-recall.routes :refer [hook-browser-navigation!]]
               [loop-recall.new-stuff :as new-stuff]
               [loop-recall.all-decks :as all-decks]
@@ -14,37 +14,62 @@
 
 (enable-console-print!)
 
-(defc home-page [db]
-  [:div.row
-   [:div.col-xs-10.col-xs-offset-1
-    [:h2 "Spaced Repetition Meets Machine Learning"]]
-   [:div.col-xs-12.col-sm-10.col-sm-offset-1
-    [:img {:src "http://loop-recall-assets.s3-us-west-1.amazonaws.com/images/visual.svg"
-           :width "100%" :height "100%"
-           :alt "Spaced Repetition"}]]])
+(defc home-page []
+  [:div.page
+   [:div.row
+    [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2
+     (mui/card
+      (mui/card-title {:title "Spaced Repetition Meets Machine Learning"})
+      [:div.row
+       [:div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2
+        (mui/card-text
+         "LoopRecall is an app designed to make the learning process more efficient.
+          We use machine learning algorithms to implement custom intelligently spaced
+          repetition plans. Given a set of knowledge you would like review and retain,
+          consider the diagram below."
+         [:ul
+          [:li "Create flash cards out of this knowledge."]
+          [:li "Put them in the first box on the left."]
+          [:li "Review each card according to the label on the box."]
+          [:li "Based on your response move the card forwards or backwards based on arrows."]
+          [:li "Repeat."]]
+         "That is basically it, except the boxes are implemented in software and the labels
+          (i.e. review intervals) on the boxes are custom generated based on your learning
+          history.")
+        [:img {:src "http://loop-recall-assets.s3-us-west-1.amazonaws.com/images/visual.svg"
+               :width "100%" :height "100%"
+               :alt "Spaced Repetition"}]
+        (mui/card-text
+         "If you like this app and feel charitable, "
+         [:a {:href "https://www.khanacademy.org/donate"} "here"]
+         " is a great cause that could use more funding.")
+        (mui/card-text "- Karan")]])]]])
 
 (defcs home <
   {:did-mount (fn [{[lock] :rum/args :as state}]
                 (.show lock)
                 state)}
   [state lock]
-  [:div.login-box
-   [:button {:on-click #(.show lock)} "signin"]])
+  [:div
+   (logged-out-navbar #(.show lock))
+   [:div.login-box]
+   (home-page)])
 
 (defcs logged-in [state db lock conn]
   (let [page (system-attr db :page)]
     [:div
      (navbar)
 
-     (condp = page
+     (case page
        :new       (new-stuff/page db)
-       :study     (study/page db)
+       :about     (home-page)
        :all-decks (all-decks/page db)
-       (home-page db))]))
+       (study/page db))]))
 
 (defn get-id-token [lock]
   (let [prev-id-token (js/localStorage.getItem "userToken")
         auth-hash     (.parseHash lock js/window.location.hash)]
+    (if-not prev-id-token (set-system-attrs! :page :about)) ; Show about page only on login.
     (if (and (not prev-id-token) auth-hash)
       (do
         ;; Set localStorage if auth-hash has a token.

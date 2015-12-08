@@ -10,15 +10,15 @@
   (:import goog.History))
 
 (defroute "/" []
-  (set-system-attrs! :page :home))
-(defroute "/new" []
-  (set-system-attrs! :page :new))
+  (set-system-attrs! :page :study))
 (defroute "/study" []
   (set-system-attrs! :page :study))
+(defroute "/new" []
+  (set-system-attrs! :page :new))
 (defroute "/all_decks" []
   (set-system-attrs! :page :all-decks))
-(defroute "/twitter_creation" []
-  (set-system-attrs! :page :twitter-creation))
+(defroute "/about" []
+  (set-system-attrs! :page :about))
 (defroute "/logout" []
   (set-system-attrs! :id-token nil)
   (.removeItem js/localStorage "userToken"))

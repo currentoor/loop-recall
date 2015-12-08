@@ -8,13 +8,12 @@
 (defcs navbar < (rum/local false) [state]
   (let [show-drop-down? (:rum/local state)
         this            (:rum/react-component state)
-        menu-items      [{ :route "#/" :text "Home" }
-                         { :route "#/study" :text "Study" }
-                         { :route "#/new" :text "Create New" }
-                         { :route "#/all_decks" :text "All Decks" }
+        menu-items      [{ :route "#/study" :text "Study" }
+                         { :route "#/new" :text "New" }
+                         { :route "#/all_decks" :text "All" }
                          { :type js/window.MaterialUI.MenuItem.Types.SUBHEADER :text "Account" }
-                         { :route "#/logout" :text "Logout" }
-                         ]]
+                         { :route "#/about" :text "About" }
+                         { :route "#/logout" :text "Logout" }]]
     [:div
      (mui/app-bar
       {:title                    "LoopRecall"
@@ -26,3 +25,22 @@
        :ref       "leftNav"
        :onChange  (fn [_ selected-idx menu-item]
                     (aset js/window.location "href" (.-route menu-item)))})]))
+
+(defcs logged-out-navbar < (rum/local false) [state show-login-modal]
+  (let [show-drop-down? (:rum/local state)
+        this            (:rum/react-component state)
+        menu-items      [{ :route "#/about" :text "About" }
+                         { :route "#/login" :text "Login/Signup" }]]
+    [:div
+     (mui/app-bar
+      {:title                    "LoopRecall"
+       :onLeftIconButtonTouchTap (fn []
+                                   (.toggle (.. this -refs -leftNav)))})
+     (mui/left-nav
+      {:menuItems menu-items
+       :docked    false
+       :ref       "leftNav"
+       :onChange  (fn [_ selected-idx menu-item]
+                    (aset js/window.location "href" (.-route menu-item))
+                    (if (= "#/login" (.-route menu-item))
+                      (show-login-modal)))})]))
